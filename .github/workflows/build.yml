@@ -30,19 +30,17 @@ jobs:
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
-      - name: Install EAS CLI
-        run: npm install -g eas-cli
+      - name: Generate Android Project
+        run: npx expo prebuild --platform android --no-install
 
-      - name: Build APK with Expo
-        run: npx expo prebuild --platform android && npx expo run:android --variant release
-        env:
-          CI: 1
+      - name: Make Gradlew Executable
+        run: cd android && chmod +x gradlew
 
-      - name: Find APK
-        run: find . -name "*.apk" -type f
+      - name: Build APK
+        run: cd android && ./gradlew assembleRelease
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: KisanApp
-          path: '**/*.apk'
+          path: android/app/build/outputs/apk/release/*.apk
