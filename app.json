@@ -8,14 +8,14 @@
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/Splash.png",
-      "resizeMode": "contain",
+      "resizeMode": "cover",
       "backgroundColor": "#4CD137"
     },
     "android": {
       "package": "com.kisanapp.app",
-      "versionCode": 9,
+      "versionCode": 13,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/android-icon-foreground.png",
+        "foregroundImage": "./assets/ic_launcher.png",
         "backgroundColor": "#4CD137"
       }
     },
