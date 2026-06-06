@@ -1,27 +1,19 @@
 {
   "expo": {
-    "name": "Kisan Smart Farming Assistant",
-    "slug": "KisanApp",
+    "name": "KisanApp",
+    "slug": "kisan-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/ic_launcher.png",
-    "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/Splash.png",
       "resizeMode": "cover",
-      "backgroundColor": "#4CD137"
+      "backgroundColor": "#39D139"
     },
     "android": {
-      "package": "com.kisanapp.app",
-      "versionCode": 13,
       "adaptiveIcon": {
         "foregroundImage": "./assets/ic_launcher.png",
-        "backgroundColor": "#4CD137"
-      }
-    },
-    "extra": {
-      "eas": {
-        "projectId": "ec826a31-8491-436e-9"
+        "backgroundColor": "#39D139"
       }
     }
   }
