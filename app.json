@@ -8,6 +8,11 @@
     "userInterfaceStyle": "light",
     "android": {
       "package": "com.kisanapp.app"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "ec826a31-8491-436e-9951-da6ed6345e02"
+      }
     }
   }
 }
