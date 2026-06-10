@@ -4,15 +4,16 @@
     "slug": "KisanApp",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/splash.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#4CE20A"
     },
     "android": {
-      "package": "com.kisanapp.app"
+      "package": "com.kisanapp.app",
+      "versionCode": 1
     },
     "extra": {
       "eas": {
