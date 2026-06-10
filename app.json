@@ -10,11 +10,11 @@
       "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#4CE20A"
-    },
+    }
     "android": {
       "package": "com.kisanapp.app",
       "versionCode": 1
-    },
+    }
     "extra": {
       "eas": {
         "projectId": "ec826a31-8491-436e-9951-da6ed6345e02"
