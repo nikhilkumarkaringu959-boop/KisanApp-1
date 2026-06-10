@@ -1,22 +1,22 @@
 {
   "expo": {
-    "name": "KISAN",
-    "slug": "kisanapp",
+    "name": "KisanApp",
+    "slug": "KisanApp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/icon.png",
+      "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#0B7A2A"
+      "backgroundColor": "#ffffff"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/icon.png",
-        "backgroundColor": "#0B7A2A"
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
       },
-      "package": "com.kisan.app"
+      "package": "com.kisanapp.app"
     }
   }
 }
