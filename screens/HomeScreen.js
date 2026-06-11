@@ -125,12 +125,12 @@ export default function HomeScreen() {
   };
 
   const cards = [
-    { name: 'Crop Information', icon: 'leaf', color: '#16A34A', bgColor: '#E8F5E9', screen: 'CropInfo' },
-    { name: 'Weather Forecast', icon: 'weather-pouring', color: '#3B82F6', bgColor: '#E3F2FD', screen: 'Weather' },
-    { name: 'Smart Fertilizer', icon: 'water', color: '#8B5CF6', bgColor: '#F3E5F5', screen: 'Fertilizer' },
-    { name: 'Pest & Disease', icon: 'bug', color: '#EF4444', bgColor: '#FFEBEE', screen: 'PestControl' },
-    { name: 'Cash Crop Tips', icon: 'trending-up', color: '#10B981', bgColor: '#E8F5E9', screen: 'CashCrops' },
-    { name: 'Govt Schemes', icon: 'office-building', color: '#F97316', bgColor: '#FFF3E0', screen: 'GovtSchemes' },
+    { name: 'Crop Information', icon: 'leaf', color: '#16A34A', bgColor: '#E8F5E9', screen: 'CropInfoScreen' },
+    { name: 'Weather Forecast', icon: 'weather-pouring', color: '#3B82F6', bgColor: '#E3F2FD', screen: 'WeatherScreen' },
+    { name: 'Smart Fertilizer', icon: 'water', color: '#8B5CF6', bgColor: '#F3E5F5', screen: 'FertilizerScreen' },
+    { name: 'Pest & Disease', icon: 'bug', color: '#EF4444', bgColor: '#FFEBEE', screen: 'PestControlScreen' },
+    { name: 'Cash Crop Tips', icon: 'trending-up', color: '#10B981', bgColor: '#E8F5E9', screen: 'CashCropsScreen' },
+    { name: 'Govt Schemes', icon: 'office-building', color: '#F97316', bgColor: '#FFF3E0', screen: 'GovtSchemesScreen' },
   ];
 
   const renderBannerIcon = (iconName) => {
@@ -142,7 +142,7 @@ export default function HomeScreen() {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.openDrawer()}>
           <Ionicons name="menu" size={28} color="#000" />
         </TouchableOpacity>
         <View style={styles.logoRow}>
@@ -224,7 +224,7 @@ export default function HomeScreen() {
           <Ionicons name="home" size={26} color="#16A34A" />
           <Text style={[styles.tabText, { color: '#16A34A' }]}>Home</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.tabItem} onPress={() => navigation.navigate('KisanAI')}>
+        <TouchableOpacity style={styles.tabItem} onPress={() => navigation.navigate('KisanAIScreen')}>
           <MaterialCommunityIcons name="leaf" size={26} color="#6B7280" />
           <Text style={styles.tabText}>AI</Text>
         </TouchableOpacity>
