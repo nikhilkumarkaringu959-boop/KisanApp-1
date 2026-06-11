@@ -24,7 +24,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#16A34A"
       },
-      "package": "com.dhanush.kisan",
+      "package": "com.karingunikhil.kisan",
       "versionCode": 2,
       "permissions": [
         "ACCESS_COARSE_LOCATION",
