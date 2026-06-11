@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator, Linking } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
 
 const states = ['Telangana', 'Andhra Pradesh', 'Karnataka', 'Tamil Nadu'];
@@ -14,7 +13,6 @@ export default function GovtSchemesScreen({ navigation }) {
   const fetchSchemes = async () => {
     setLoading(true);
     try {
-      // Backend API call - Google Search + Official sites
       const res = await axios.post('https://your-backend.com/api/govt-schemes', {
         state: selectedState,
         year: 2026,
@@ -31,7 +29,6 @@ export default function GovtSchemesScreen({ navigation }) {
       setSchemes(res.data);
     } catch (err) {
       console.log('Error:', err);
-      // Fallback data if API fails
       setSchemes({
         schemes: [
           {
@@ -63,16 +60,6 @@ export default function GovtSchemesScreen({ navigation }) {
     }
   };
 
-  const getStateSchemes = () => {
-    const schemeMap = {
-      'Telangana': ['RythuBharosa Updates', 'RunaMaaphee Status'],
-      'Andhra Pradesh': ['YSR RythuBharosa', 'Input Subsidy'],
-      'Karnataka': ['Krishi Bhagya', 'Crop Insurance'],
-      'Tamil Nadu': ['Tamil Nadu Farmer Support', 'FasalBima']
-    };
-    return schemeMap[selectedState] || [];
-  };
-
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -86,16 +73,25 @@ export default function GovtSchemesScreen({ navigation }) {
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <Text style={styles.label}>Select Your State:</Text>
         <View style={styles.pickerBox}>
-          <Picker 
-            selectedValue={selectedState} 
-            onValueChange={setSelectedState} 
-            style={styles.picker}
-            dropdownIconColor="#2563EB"
-          >
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ paddingVertical: 8 }}>
             {states.map(state => (
-              <Picker.Item key={state} label={state} value={state} />
+              <TouchableOpacity
+                key={state}
+                onPress={() => setSelectedState(state)}
+                style={[
+                  styles.stateBtn,
+                  selectedState === state && styles.stateBtnActive
+                ]}
+              >
+                <Text style={[
+                  styles.stateBtnText,
+                  selectedState === state && styles.stateBtnTextActive
+                ]}>
+                  {state}
+                </Text>
+              </TouchableOpacity>
             ))}
-          </Picker>
+          </ScrollView>
         </View>
 
         <TouchableOpacity 
@@ -186,9 +182,29 @@ const styles = StyleSheet.create({
     borderWidth: 1, 
     borderColor: '#D1D5DB', 
     marginBottom: 16,
-    overflow: 'hidden'
+    paddingHorizontal: 8
   },
-  picker: { height: 50 },
+  stateBtn: {
+    backgroundColor: '#F3F4F6',
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    borderRadius: 20,
+    marginRight: 10,
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+  },
+  stateBtnActive: {
+    backgroundColor: '#2563EB',
+    borderColor: '#2563EB',
+  },
+  stateBtnText: {
+    color: '#374151',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  stateBtnTextActive: {
+    color: '#fff',
+  },
   checkBtn: { 
     backgroundColor: '#2563EB', 
     borderRadius: 16, 
