@@ -8,12 +8,9 @@
     "android": {
       "package": "com.karingunikhil.kisan"
     },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    },
     "extra": {
       "eas": {
-        "projectId": "5da07626-a32d-49d8-8f10-f31137c6f09b"
+        "projectId": "ec826a31-8491-436e-9951-da6ed6345e02"
       }
     }
   }
