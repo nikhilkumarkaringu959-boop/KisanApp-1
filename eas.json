@@ -1,4 +1,7 @@
 {
+  "cli": {
+    "version": ">= 5.0.0"
+  },
   "build": {
     "preview": {
       "android": {
@@ -6,6 +9,10 @@
       },
       "distribution": "internal"
     },
-    "production": {}
+    "production": {
+      "android": {
+        "buildType": "aab"
+      }
+    }
   }
 }
