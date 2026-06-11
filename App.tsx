@@ -7,6 +7,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
+// IMPORT REAL SCREENS 👇
+import ProfileScreen from './screens/ProfileScreen';
+import WeatherScreen from './screens/WeatherScreen';
+
 // --- MOCK DATA ---
 const CROP_DATA = {
   Kharif: [
@@ -42,7 +46,7 @@ const Stack = createNativeStackNavigator();
 
 // --- GLOBAL STATE ---
 let globalProfile = {
-  language: '', name: '', age: '', gender: '', state: '', 
+  language: '', name: '', age: '', gender: '', state: '',
   district: '', mandal: '', village: '', landSize: '', soilType: ''
 };
 
@@ -60,7 +64,7 @@ function LanguageScreen({ navigation }) {
         <Text style={styles.appTitle}>KISAN</Text>
         <Text style={styles.appSubtitle}>The Smart Farming Assistant</Text>
         <Text style={styles.langHint}>Please select your language / దయచేసి మీ భాషను ఎంచుకోండి</Text>
-        
+
         {['English', 'Telugu (తెలుగు)', 'Hindi (हिंदी)', 'Tamil (தமிழ்)', 'Kannada (ಕನ್ನಡ)'].map((lang) => (
           <TouchableOpacity key={lang} style={styles.langButton} onPress={() => selectLang(lang)}>
             <Text style={styles.langText}>{lang}</Text>
@@ -88,11 +92,11 @@ function OnboardingScreen({ navigation }) {
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView}>
         <Text style={styles.screenTitle}>Farmer Profile Setup</Text>
-        
+
         <Text style={styles.label}>Full Name</Text>
-        <TextInput style={styles.input} placeholder="Enter your name" value={profile.name} 
+        <TextInput style={styles.input} placeholder="Enter your name" value={profile.name}
           onChangeText={(text) => setProfile({...profile, name: text})} />
-        
+
         <Text style={styles.label}>Age</Text>
         <TextInput style={styles.input} placeholder="e.g. 45" keyboardType="numeric" value={profile.age}
           onChangeText={(text) => setProfile({...profile, age: text})} />
@@ -100,7 +104,7 @@ function OnboardingScreen({ navigation }) {
         <Text style={styles.label}>Gender</Text>
         <View style={styles.genderRow}>
           {['Male', 'Female', 'Other'].map(g => (
-            <TouchableOpacity key={g} style={[styles.genderBtn, profile.gender === g && styles.genderActive]} 
+            <TouchableOpacity key={g} style={[styles.genderBtn, profile.gender === g && styles.genderActive]}
               onPress={() => setProfile({...profile, gender: g})}>
               <Text style={[styles.genderText, profile.gender === g && styles.genderTextActive]}>{g}</Text>
             </TouchableOpacity>
@@ -202,7 +206,7 @@ function HomeScreen({ navigation }) {
 // --- CROP INFO SCREEN ---
 function CropInfoScreen({ navigation }) {
   const [activeSeason, setActiveSeason] = useState('Kharif');
-  
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.screenHeader}>
@@ -215,7 +219,7 @@ function CropInfoScreen({ navigation }) {
 
       <View style={styles.tabRow}>
         {Object.keys(CROP_DATA).map(season => (
-          <TouchableOpacity key={season} style={[styles.tab, activeSeason === season && styles.tabActive]} 
+          <TouchableOpacity key={season} style={[styles.tab, activeSeason === season && styles.tabActive]}
             onPress={() => setActiveSeason(season)}>
             <Text style={[styles.tabText, activeSeason === season && styles.tabTextActive]}>{season}</Text>
           </TouchableOpacity>
@@ -258,9 +262,9 @@ function PlaceholderScreen({ navigation, title, icon, color }) {
   );
 }
 
-function WeatherScreen({ navigation }) {
-  return <PlaceholderScreen navigation={navigation} title="Weather Forecast" icon="rainy" color="#2563EB" />;
-}
+// DELETED PLACEHOLDER WeatherScreen - Using real one from./screens/WeatherScreen
+// DELETED PLACEHOLDER ProfileScreen - Using real one from./screens/ProfileScreen
+
 function FertilizerScreen({ navigation }) {
   return <PlaceholderScreen navigation={navigation} title="Smart Fertilizer AI" icon="water" color="#7C3AED" />;
 }
@@ -272,9 +276,6 @@ function CashCropsScreen({ navigation }) {
 }
 function GovtSchemesScreen({ navigation }) {
   return <PlaceholderScreen navigation={navigation} title="Govt Schemes" icon="business" color="#EA580C" />;
-}
-function ProfileScreen({ navigation }) {
-  return <PlaceholderScreen navigation={navigation} title="My Profile" icon="person" color="#16A34A" />;
 }
 
 // --- TAB NAVIGATOR ---
