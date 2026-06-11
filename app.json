@@ -5,12 +5,22 @@
     "version": "2.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#16A34A"
+    },
     "android": {
-      "package": "com.karingunikhil.kisan"
+      "package": "com.karingunikhil.kisan",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#16A34A"
+      }
     },
     "extra": {
       "eas": {
-        "projectId": "ec826a31-8491-436e-9951-da6ed6345e02"
+        "projectId": "ec826a31-8491-436e-9"
       }
     }
   }
