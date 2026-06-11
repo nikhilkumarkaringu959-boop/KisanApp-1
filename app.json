@@ -12,11 +12,7 @@
       "backgroundColor": "#16A34A"
     },
     "android": {
-      "package": "com.karingunikhil.kisan",
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#16A34A"
-      }
+      "package": "com.karingunikhil.kisan"
     },
     "extra": {
       "eas": {
