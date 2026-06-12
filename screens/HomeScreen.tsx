@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Modal } from 'react-native';
 import { useProfile } from '../Context/ProfileContext';
-import { ClipboardList, Sun, Beaker, Bug, Lightbulb, Landmark, User, Globe, Bell, FileText, Share2, Info } from 'lucide-react-native';
+import { ClipboardList, Sun, Beaker, Bug, Lightbulb, Landmark, User, Globe, Bell, FileText, Share2, Info, Sprout } from 'lucide-react-native';
+
 export default function HomeScreen({ navigation }) {
   const { profile } = useProfile();
   const [menu, setMenu] = useState(false);
@@ -18,7 +19,7 @@ export default function HomeScreen({ navigation }) {
       <View style={styles.menuIcon}>{icon}</View>
       <View style={styles.flex1}>
         <Text style={styles.menuLabel}>{label}</Text>
-        {sub? <Text style={styles.menuSub}>{sub}</Text> : null}
+        {sub ? <Text style={styles.menuSub}>{sub}</Text> : null}
       </View>
     </TouchableOpacity>
   );
@@ -66,7 +67,7 @@ export default function HomeScreen({ navigation }) {
           <View style={styles.menuBox}>
             <MenuItem icon={<User color="#4CAF50" size={20} />} label="My Profile" sub={profile.name} onPress={() => {setMenu(false); navigation.navigate('PROFILE')}} />
             <MenuItem icon={<Globe color="#3B82F6" size={20} />} label="Change Language" sub={profile.language} onPress={() => {setMenu(false); navigation.navigate('LANGUAGE')}} />
-            <MenuItem icon={<Sprout color="#10B981" size={20} />} label="KISAN AI Assistant" onPress={() => setMenu(false)} />
+            <MenuItem icon={<Sprout color="#10B981" size={20} />} label="KISAN AI Assistant" onPress={() => {setMenu(false); navigation.navigate('KISAN_AI')}} />
             <MenuItem icon={<Bell color="#F59E0B" size={20} />} label="Notifications" sub="Weather & Govt Alerts" onPress={() => setMenu(false)} />
             <MenuItem icon={<FileText color="#6366F1" size={20} />} label="My Farm Details" sub={`${profile.landSize} Ac, ${profile.soilType}`} onPress={() => setMenu(false)} />
             <View style={styles.divider} />
