@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
-import { useProfile } from '../context/ProfileContext';
-
+import { useProfile } from '../Context/ProfileContext';
 export default function WeatherScreen() {
   const { profile } = useProfile();
   const [loading, setLoading] = useState(true);
