@@ -2,30 +2,47 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { StackNavigationProp } from '@react-navigation/stack';
 
-export default function KisanAIScreen({ navigation }) {
-  const [messages, setMessages] = useState([
+type RootStackParamList = {
+  KISAN_AI: undefined;
+};
+
+type KisanAIScreenNavigationProp = StackNavigationProp<RootStackParamList, 'KISAN_AI'>;
+
+type Props = {
+  navigation: KisanAIScreenNavigationProp;
+};
+
+interface Message {
+  id: number;
+  text: string;
+  sender: 'user' | 'ai';
+}
+
+export default function KisanAIScreen({ navigation }: Props) {
+  const [messages, setMessages] = useState<Message[]>([
     { id: 1, text: 'Namaste! I am KISAN AI 🌾\n\nThe Smart Farming Assistant. Ask me about crops, weather, fertilizers, or govt schemes!', sender: 'ai' }
   ]);
-  const [inputText, setInputText] = useState('');
+  const [inputText, setInputText] = useState<string>('');
 
-  const quickQuestions = [
+  const quickQuestions: string[] = [
     'Best fertilizer for paddy?',
     'Weather forecast tomorrow',
     'PM Kisan scheme details',
     'How to control pests?'
   ];
 
-  const sendMessage = (text) => {
+  const sendMessage = (text: string): void => {
     if (!text.trim()) return;
     
-    const userMsg = { id: Date.now(), text, sender: 'user' };
+    const userMsg: Message = { id: Date.now(), text, sender: 'user' };
     setMessages(prev => [...prev, userMsg]);
     setInputText('');
 
     // Mock AI Response - Real API tarvata add cheddam
     setTimeout(() => {
-      const aiResponse = {
+      const aiResponse: Message = {
         id: Date.now() + 1,
         text: `Great question about "${text}"! 🌱\n\nFor detailed guidance, please share:\n1. Your crop name\n2. Land size in acres\n3. Soil type\n\nI'll give exact recommendations with stage-wise dosage.`,
         sender: 'ai'
@@ -101,7 +118,7 @@ const styles = StyleSheet.create({
   aiText: { color: '#1F2937' },
   quickQuestions: { paddingVertical: 8, borderTopWidth: 1, borderTopColor: '#E5E7EB', backgroundColor: '#fff' },
   quickBtn: { backgroundColor: '#F3F4F6', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 16, marginHorizontal: 4, marginLeft: 16 },
-  quickBtnText: { fontSize: 13, color: '#374151' },
+  quickBtnText: { fontSize: 13, color: '#374151', fontWeight: '600' },
   inputContainer: { flexDirection: 'row', padding: 12, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#E5E7EB', alignItems: 'flex-end' },
   input: { flex: 1, backgroundColor: '#F3F4F6', borderRadius: 20, paddingHorizontal: 16, paddingVertical: 10, maxHeight: 100, fontSize: 15 },
   sendBtn: { backgroundColor: '#16A34A', width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', marginLeft: 8 },
