@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-import { useProfile } from '../context/ProfileContext';
-
+import { useProfile } from '../Context/ProfileContext';
 export default function OnboardingScreen({ navigation }) {
   const { updateProfile } = useProfile();
   const [profile, setProfile] = useState({
