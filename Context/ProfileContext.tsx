@@ -5,7 +5,7 @@ const ProfileContext = createContext();
 
 export const ProfileProvider = ({ children }) => {
   const [profile, setProfile] = useState({
-    language: '', name: '', age: '', gender: '', state: '',
+    language: '', name: '', age: '', gender: '', state: 'Telangana',
     district: '', mandal: '', village: '', landSize: '', soilType: ''
   });
 
