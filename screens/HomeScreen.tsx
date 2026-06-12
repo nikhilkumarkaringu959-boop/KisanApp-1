@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Modal } from 'react-native';
-import { useProfile } from '../context/ProfileContext';
+import { useProfile } from '../Context/ProfileContext';
 import { ClipboardList, Sun, Beaker, Bug, Lightbulb, Landmark, User, Globe, Bell, FileText, Share2, Info } from 'lucide-react-native';
-
 export default function HomeScreen({ navigation }) {
   const { profile } = useProfile();
   const [menu, setMenu] = useState(false);
