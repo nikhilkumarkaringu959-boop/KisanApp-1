@@ -5,8 +5,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StatusBar } from 'expo-status-bar';
 import { View, Text, StyleSheet } from 'react-native';
 import { Home, Sprout, User } from 'lucide-react-native';
-import { ProfileProvider } from './context/ProfileContext';
-
+import { ProfileProvider } from './Context/ProfileContext';
 // Screens Import
 import LanguageScreen from './screens/LanguageScreen';
 import OnboardingScreen from './screens/OnboardingScreen';
