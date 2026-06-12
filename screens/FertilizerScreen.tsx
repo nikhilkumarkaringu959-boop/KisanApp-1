@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
-import { useProfile } from '../context/ProfileContext';
-
+import { useProfile } from '../Context/ProfileContext';
 export default function FertilizerScreen() {
   const { profile } = useProfile();
   const [crop, setCrop] = useState('');
