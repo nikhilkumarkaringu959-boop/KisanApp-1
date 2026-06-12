@@ -1,8 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Leaf } from 'lucide-react-native';
-import { useProfile } from '../context/ProfileContext';
-
+import { useProfile } from '../Context/ProfileContext';
 export default function LanguageScreen({ navigation }) {
   const { updateProfile } = useProfile();
 
