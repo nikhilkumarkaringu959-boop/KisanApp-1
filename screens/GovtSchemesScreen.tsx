@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator, Linking } from 'react-native';
-import { useProfile } from '../context/ProfileContext';
-
+import { useProfile } from '../Context/ProfileContext';
 export default function GovtSchemesScreen() {
   const { profile } = useProfile();
   const [state, setState] = useState(profile.state || 'Telangana');
