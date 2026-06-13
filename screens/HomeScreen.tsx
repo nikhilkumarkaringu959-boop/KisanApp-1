@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Modal, FlatList, 
 import { useProfile } from '../Context/ProfileContext';
 import { LanguageContext } from '../Context/LanguageContext';
 import { ClipboardList, Sun, Beaker, Bug, Lightbulb, Landmark, User, Globe, Bell, FileText, Share2, Info, Sprout, AlertCircle, Menu, Leaf } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const { width } = Dimensions.get('window');
 
@@ -57,7 +58,6 @@ export default function HomeScreen({ navigation }) {
     return () => clearInterval(interval);
   }, [currentBanner, banners.length]);
 
-  // ✅ CHANGE 1: SHARE FUNCTION ADDED
   const handleShare = async () => {
     try {
       await Share.share({
@@ -102,16 +102,22 @@ export default function HomeScreen({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
-      {/* ✅ CHANGE 2: HEADER - HAMBURGER LEFT + 3 DOTS RIGHT */}
+    <LinearGradient colors={['#1A9B6C', '#0D5A3E']} style={styles.container}>
+      
+      {/* ✅ FULL SCREEN GREEN LEAF BACKGROUND */}
+      <View style={styles.leafBgContainer}>
+        <Leaf color="rgba(255,255,255,0.08)" size={500} strokeWidth={1} style={styles.leafBg} />
+        <Leaf color="rgba(255,255,255,0.06)" size={350} strokeWidth={1} style={styles.leafBg2} />
+      </View>
+
       <View style={styles.header}>
         <TouchableOpacity onPress={() => setMenu(true)} style={styles.iconBtn}>
-          <Menu color="#16A34A" size={26} strokeWidth={2.5} />
+          <Menu color="#fff" size={26} strokeWidth={2.5} />
         </TouchableOpacity>
         
         <View style={styles.logoBox}>
           <Text style={styles.logoText}>KISAN</Text>
-          <Leaf color="#16A34A" size={22} strokeWidth={2.5} fill="#16A34A" />
+          <Leaf color="#fff" size={22} strokeWidth={2.5} fill="#fff" />
         </View>
         
         <TouchableOpacity onPress={() => setMenu(true)} style={styles.iconBtn}>
@@ -167,12 +173,7 @@ export default function HomeScreen({ navigation }) {
         <TouchableOpacity style={styles.modalBg} activeOpacity={1} onPress={() => setMenu(false)}>
           <View style={styles.menuBox}>
             <MenuItem icon={<User color="#16A34A" size={20} />} label="My Profile" sub={profile.name || 'Nikhil'} onPress={() => {setMenu(false); navigation.navigate('PROFILE_DETAIL')}} />
-            <MenuItem
-              icon={<Globe color="#3B82F6" size={20} />}
-              label="Change Language"
-              sub={languageMap[language] || 'English'}
-              onPress={() => {setMenu(false); navigation.navigate('LANGUAGE')}}
-            />
+            <MenuItem icon={<Globe color="#3B82F6" size={20} />} label="Change Language" sub={languageMap[language] || 'English'} onPress={() => {setMenu(false); navigation.navigate('LANGUAGE')}} />
             <MenuItem icon={<Sprout color="#10B981" size={20} />} label="KISAN AI Assistant" onPress={() => {setMenu(false); navigation.navigate('KISAN_AI')}} />
             <MenuItem icon={<Bell color="#F59E0B" size={20} />} label="Notifications" sub="Weather & Govt Alerts" onPress={() => {setMenu(false); navigation.navigate('NOTIFICATIONS')}} />
             <MenuItem icon={<FileText color="#6366F1" size={20} />} label="My Farm Details" sub={`${profile.landSize || '2.8'} Ac, ${profile.soilType || 'Black Soil'}`} onPress={() => {setMenu(false); navigation.navigate('FARM_DETAILS')}} />
@@ -182,38 +183,50 @@ export default function HomeScreen({ navigation }) {
           </View>
         </TouchableOpacity>
       </Modal>
-    </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F9FAFB' },
+  container: { flex: 1 },
+  // ✅ LEAF BACKGROUND STYLES
+  leafBgContainer: { 
+    position: 'absolute', 
+    top: 0, 
+    left: 0, 
+    right: 0, 
+    bottom: 0, 
+    alignItems: 'center', 
+    justifyContent: 'center' 
+  },
+  leafBg: { 
+    position: 'absolute',
+    top: 100,
+    left: -80,
+    transform: [{ rotate: '-20deg' }] 
+  },
+  leafBg2: { 
+    position: 'absolute',
+    bottom: 150,
+    right: -60,
+    transform: [{ rotate: '15deg' }] 
+  },
   header: { 
-    backgroundColor: '#fff', 
+    backgroundColor: 'rgba(255,255,255,0.15)', 
     padding: 15, 
     paddingTop: 50, 
     flexDirection: 'row', 
     justifyContent: 'space-between', 
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB'
+    borderBottomColor: 'rgba(255,255,255,0.2)'
   },
-  // ✅ CHANGE 3: ICONBTN + THREEDOTS STYLES ADDED
-  iconBtn: {
-    width: 40,
-    height: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  threeDots: {
-    fontSize: 28,
-    color: '#16A34A',
-    fontWeight: 'bold',
-  },
+  iconBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
+  threeDots: { fontSize: 28, color: '#fff', fontWeight: 'bold' },
   logoBox: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  logoText: { fontSize: 24, fontWeight: '800', color: '#16A34A', letterSpacing: 1 },
+  logoText: { fontSize: 24, fontWeight: '800', color: '#fff', letterSpacing: 1 },
   scroll: { flex: 1 },
-  welcomeBox: { backgroundColor: 'white', margin: 15, padding: 20, borderRadius: 15, elevation: 2, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 8 },
+  welcomeBox: { backgroundColor: 'rgba(255,255,255,0.95)', margin: 15, padding: 20, borderRadius: 15, elevation: 2, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 8 },
   welcomeText: { fontSize: 26, fontWeight: '700', color: '#1F2937', marginBottom: 4 },
   welcomeSub: { fontSize: 16, color: '#16A34A', fontWeight: '600' },
   bannerContainer: { marginBottom: 10 },
@@ -224,11 +237,11 @@ const styles = StyleSheet.create({
   bannerDesc: { color: '#FFF', fontSize: 14, opacity: 0.95, lineHeight: 20 },
   dotsContainer: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 6, marginTop: 4 },
   dot: { width: 8, height: 8, borderRadius: 4 },
-  dotActive: { backgroundColor: '#16A34A', width: 24 },
-  dotInactive: { backgroundColor: '#D1D5DB' },
-  sectionTitle: { fontSize: 18, fontWeight: '700', color: '#1F2937', marginLeft: 15, marginTop: 10, marginBottom: 10 },
+  dotActive: { backgroundColor: '#fff', width: 24 },
+  dotInactive: { backgroundColor: 'rgba(255,255,255,0.4)' },
+  sectionTitle: { fontSize: 18, fontWeight: '700', color: '#fff', marginLeft: 15, marginTop: 10, marginBottom: 10 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', padding: 10, gap: 14 },
-  card: { backgroundColor: 'white', width: '47.5%', padding: 20, borderRadius: 16, alignItems: 'center', elevation: 2, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 8 },
+  card: { backgroundColor: 'rgba(255,255,255,0.98)', width: '47.5%', padding: 20, borderRadius: 16, alignItems: 'center', elevation: 3, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 8 },
   iconCircle: { width: 64, height: 64, borderRadius: 32, justifyContent: 'center', alignItems: 'center', marginBottom: 12 },
   cardText: { fontSize: 14, fontWeight: '600', textAlign: 'center', color: '#1F2937' },
   modalBg: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' },
