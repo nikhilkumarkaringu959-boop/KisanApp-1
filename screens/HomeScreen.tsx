@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Modal, FlatList, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Modal, FlatList, Dimensions, Share } from 'react-native';
 import { useProfile } from '../Context/ProfileContext';
 import { LanguageContext } from '../Context/LanguageContext';
 import { ClipboardList, Sun, Beaker, Bug, Lightbulb, Landmark, User, Globe, Bell, FileText, Share2, Info, Sprout, AlertCircle, Menu, Leaf } from 'lucide-react-native';
@@ -57,6 +57,19 @@ export default function HomeScreen({ navigation }) {
     return () => clearInterval(interval);
   }, [currentBanner, banners.length]);
 
+  // ✅ CHANGE 1: SHARE FUNCTION ADDED
+  const handleShare = async () => {
+    try {
+      await Share.share({
+        message: 'KISAN - The Smart Farming Assistant\nDownload now: https://play.google.com/store/apps/kisanai',
+        title: 'KISAN App'
+      });
+      setMenu(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const Card = ({ icon, title, color, screen }) => (
     <TouchableOpacity style={styles.card} onPress={() => navigation.navigate(screen)}>
       <View style={[styles.iconCircle, {backgroundColor: color}]}>{icon}</View>
@@ -90,9 +103,9 @@ export default function HomeScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      {/* ✅ WHITE HEADER - PHOTO MATCH */}
+      {/* ✅ CHANGE 2: HEADER - HAMBURGER LEFT + 3 DOTS RIGHT */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => setMenu(true)}>
+        <TouchableOpacity onPress={() => setMenu(true)} style={styles.iconBtn}>
           <Menu color="#16A34A" size={26} strokeWidth={2.5} />
         </TouchableOpacity>
         
@@ -101,7 +114,9 @@ export default function HomeScreen({ navigation }) {
           <Leaf color="#16A34A" size={22} strokeWidth={2.5} fill="#16A34A" />
         </View>
         
-        <View style={{ width: 40 }} />
+        <TouchableOpacity onPress={() => setMenu(true)} style={styles.iconBtn}>
+          <Text style={styles.threeDots}>⋮</Text>
+        </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
@@ -162,7 +177,7 @@ export default function HomeScreen({ navigation }) {
             <MenuItem icon={<Bell color="#F59E0B" size={20} />} label="Notifications" sub="Weather & Govt Alerts" onPress={() => {setMenu(false); navigation.navigate('NOTIFICATIONS')}} />
             <MenuItem icon={<FileText color="#6366F1" size={20} />} label="My Farm Details" sub={`${profile.landSize || '2.8'} Ac, ${profile.soilType || 'Black Soil'}`} onPress={() => {setMenu(false); navigation.navigate('FARM_DETAILS')}} />
             <View style={styles.divider} />
-            <MenuItem icon={<Share2 color="#8B5CF6" size={20} />} label="Share App" onPress={() => setMenu(false)} />
+            <MenuItem icon={<Share2 color="#8B5CF6" size={20} />} label="Share App" onPress={handleShare} />
             <MenuItem icon={<Info color="#6B7280" size={20} />} label="About Us" sub="v1.0.0" onPress={() => {setMenu(false); navigation.navigate('ABOUT_US')}} />
           </View>
         </TouchableOpacity>
@@ -182,6 +197,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB'
+  },
+  // ✅ CHANGE 3: ICONBTN + THREEDOTS STYLES ADDED
+  iconBtn: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  threeDots: {
+    fontSize: 28,
+    color: '#16A34A',
+    fontWeight: 'bold',
   },
   logoBox: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   logoText: { fontSize: 24, fontWeight: '800', color: '#16A34A', letterSpacing: 1 },
@@ -205,7 +232,7 @@ const styles = StyleSheet.create({
   iconCircle: { width: 64, height: 64, borderRadius: 32, justifyContent: 'center', alignItems: 'center', marginBottom: 12 },
   cardText: { fontSize: 14, fontWeight: '600', textAlign: 'center', color: '#1F2937' },
   modalBg: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' },
-  menuBox: { position: 'absolute', top: 90, left: 15, backgroundColor: 'white', borderRadius: 20, paddingVertical: 12, width: 310, elevation: 12, shadowColor: '#000', shadowOpacity: 0.25, shadowRadius: 20 },
+  menuBox: { position: 'absolute', top: 90, right: 15, backgroundColor: 'white', borderRadius: 20, paddingVertical: 12, width: 310, elevation: 12, shadowColor: '#000', shadowOpacity: 0.25, shadowRadius: 20 },
   menuItem: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 15, gap: 15 },
   menuIcon: { width: 46, height: 46, borderRadius: 23, backgroundColor: '#F3F4F6', justifyContent: 'center', alignItems: 'center' },
   flex1: { flex: 1 },
