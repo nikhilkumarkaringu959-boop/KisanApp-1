@@ -1,14 +1,15 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StatusBar } from 'expo-status-bar';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { Home, Sprout, User } from 'lucide-react-native';
-import { ProfileProvider } from './Context/ProfileContext';
+import { ProfileProvider, useProfile } from './Context/ProfileContext'; // ✅ useProfile ADD
 // Screens Import
 import LanguageScreen from './screens/LanguageScreen';
 import OnboardingScreen from './screens/OnboardingScreen';
+import FarmerProfileScreen from './screens/FarmerProfileScreen'; // ✅ ADD CHESA
 import HomeScreen from './screens/HomeScreen';
 import CropInfoScreen from './screens/CropInfoScreen';
 import WeatherScreen from './screens/WeatherScreen';
@@ -21,7 +22,7 @@ import KisanAIScreen from './screens/KisanAIScreen';
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-// Bottom Tab Navigator
+// ✅ NEE BOTTOM TABS - DESIGN SAME
 function TabNavigator() {
   return (
     <Tab.Navigator
@@ -70,27 +71,65 @@ function TabNavigator() {
   );
 }
 
+// ✅ LOADING SCREEN - NEW
+function LoadingScreen() {
+  return (
+    <View style={styles.loadingContainer}>
+      <ActivityIndicator size="large" color="#16A34A" />
+    </View>
+  );
+}
+
+// ✅ NAVIGATOR WITH BUG FIX
+function AppNavigator() {
+  const { isProfileComplete, loading } = useProfile();
+  const [initialRoute, setInitialRoute] = useState<string | null>(null);
+
+  useEffect(() => {
+    // ✅ BUG FIX: loading false ayyaka matrame check chey
+    if (!loading) {
+      if (!isProfileComplete()) {
+        // Profile complete kaakapothe Language nunchi start
+        setInitialRoute('LANGUAGE');
+      } else {
+        // Profile unte direct Main
+        setInitialRoute('MAIN');
+      }
+    }
+  }, [loading]);
+
+  // Loading ayye varaku LoadingScreen
+  if (loading ||!initialRoute) {
+    return <LoadingScreen />;
+  }
+
+  return (
+    <NavigationContainer>
+      <StatusBar style="dark" />
+      <Stack.Navigator 
+        initialRouteName={initialRoute}
+        screenOptions={{ headerShown: false }}
+      >
+        <Stack.Screen name="LANGUAGE" component={LanguageScreen} />
+        <Stack.Screen name="ONBOARDING" component={OnboardingScreen} />
+        <Stack.Screen name="FARMER_PROFILE" component={FarmerProfileScreen} /> {/* ✅ ADD */}
+        <Stack.Screen name="MAIN" component={TabNavigator} />
+        <Stack.Screen name="CROP" component={CropInfoScreen} />
+        <Stack.Screen name="WEATHER" component={WeatherScreen} />
+        <Stack.Screen name="FERTILIZER" component={FertilizerScreen} />
+        <Stack.Screen name="PEST" component={PestControlScreen} />
+        <Stack.Screen name="TIPS" component={TipsScreen} />
+        <Stack.Screen name="SCHEMES" component={GovtSchemesScreen} />
+        <Stack.Screen name="KISAN_AI" component={KisanAIScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
+
 export default function App() {
   return (
     <ProfileProvider>
-      <NavigationContainer>
-        <StatusBar style="dark" />
-        <Stack.Navigator 
-          initialRouteName="LANGUAGE"
-          screenOptions={{ headerShown: false }}
-        >
-          <Stack.Screen name="LANGUAGE" component={LanguageScreen} />
-          <Stack.Screen name="ONBOARDING" component={OnboardingScreen} />
-          <Stack.Screen name="MAIN" component={TabNavigator} />
-          <Stack.Screen name="CROP" component={CropInfoScreen} />
-          <Stack.Screen name="WEATHER" component={WeatherScreen} />
-          <Stack.Screen name="FERTILIZER" component={FertilizerScreen} />
-          <Stack.Screen name="PEST" component={PestControlScreen} />
-          <Stack.Screen name="TIPS" component={TipsScreen} />
-          <Stack.Screen name="SCHEMES" component={GovtSchemesScreen} />
-          <Stack.Screen name="KISAN_AI" component={KisanAIScreen} />
-        </Stack.Navigator>
-      </NavigationContainer>
+      <AppNavigator />
     </ProfileProvider>
   );
 }
@@ -122,5 +161,11 @@ const styles = StyleSheet.create({
     color: '#6B7280',
     fontWeight: '600',
     marginTop: -15,
+  },
+  loadingContainer: { // ✅ ADD CHESA
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
   },
 });
