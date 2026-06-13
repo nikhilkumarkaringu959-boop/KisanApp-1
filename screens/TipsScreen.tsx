@@ -1,108 +1,143 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { ArrowLeft, Lightbulb, Sun, CloudRain, Sprout, Droplets, Bug, Wind } from 'lucide-react-native';
 
-export default function TipsScreen() {
-  const [selected, setSelected] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [tips, setTips] = useState(null);
+export default function TipsScreen({ navigation }) {
+  const [selectedTab, setSelectedTab] = useState('Seasonal');
 
-  const crops = [
-    { name: 'Cotton', icon: '🦺' },
-    { name: 'Chilli', icon: '🌶️' },
-    { name: 'Sugarcane', icon: '🎋' },
-    { name: 'Maize', icon: '🌽' }
-  ];
+  const tabs = ['Seasonal', 'Crop Wise', 'Water', 'Pest Control', 'Soil Health'];
 
-  const getTips = () => {
-    if (!selected) return;
-    setLoading(true);
-    setTimeout(() => {
-      setTips({
-        overview: `Maximize ${selected} profits with precision farming`,
-        sowing: "Use HDPS with 90x30 cm spacing. Treat seeds with Imidacloprid",
-        water: "Drip irrigation mandatory. Stop watering 15 days before harvest",
-        yield: selected === 'Cotton' ? "Topping at 80-90 days for more bolls" : "Apply growth regulators at flowering",
-        profit: "Hold grade A produce for 2 months. Expected 15% price rise"
-      });
-      setLoading(false);
-    }, 2000);
-  };
-
-  return (
-    <ScrollView style={styles.container}>
-      <View style={styles.card}>
-        <Text style={styles.title}>Select High-Yield Cash Crop</Text>
-        <View style={styles.grid}>
-          {crops.map(c => (
-            <TouchableOpacity key={c.name} style={[styles.cropBtn, selected === c.name && styles.cropActive]} onPress={() => {setSelected(c.name); setTips(null)}}>
-              <Text style={styles.cropIcon}>{c.icon}</Text>
-              <Text style={[styles.cropName, selected === c.name && styles.cropNameActive]}>{c.name}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        <TouchableOpacity style={[styles.getBtn, !selected && styles.getBtnDisabled]} onPress={getTips} disabled={!selected || loading}>
-          {loading ? <ActivityIndicator color="white" /> : <Text style={styles.getBtnText}>Get Smart Farming Tips</Text>}
-        </TouchableOpacity>
-      </View>
-
-      {tips && (
-        <View style={styles.tipsCard}>
-          <View style={styles.tipItem}>
-            <View style={[styles.tipBar, {backgroundColor: '#3B82F6'}]} />
-            <View style={styles.flex1}>
-              <Text style={styles.tipTitle}>🌱 Smart Sowing</Text>
-              <Text style={styles.tipText}>{tips.sowing}</Text>
-            </View>
-          </View>
-
-          <View style={styles.tipItem}>
-            <View style={[styles.tipBar, {backgroundColor: '#06B6D4'}]} />
-            <View style={styles.flex1}>
-              <Text style={styles.tipTitle}>💧 Water Management</Text>
-              <Text style={styles.tipText}>{tips.water}</Text>
-            </View>
-          </View>
-
-          <View style={styles.tipItem}>
-            <View style={[styles.tipBar, {backgroundColor: '#8B5CF6'}]} />
-            <View style={styles.flex1}>
-              <Text style={styles.tipTitle}>🚀 Yield Boosting</Text>
-              <Text style={styles.tipTextPurple}>{tips.yield}</Text>
-            </View>
-          </View>
-
-          <View style={styles.profitBox}>
-            <Text style={styles.profitTitle}>🏆 Profit Multiplier Tip</Text>
-            <Text style={styles.profitText}>{tips.profit}</Text>
-          </View>
-        </View>
-      )}
-    </ScrollView>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f7fafc' },
-  card: { backgroundColor: 'white', margin: 15, padding: 20, borderRadius: 15, elevation: 2 },
-  title: { fontSize: 18, fontWeight: 'bold', color: '#1F2937', textAlign: 'center', marginBottom: 20 },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 20 },
-  cropBtn: { width: '48%', backgroundColor: '#f9fafb', padding: 20, borderRadius: 12, alignItems: 'center', borderWidth: 2, borderColor: '#e5e7eb' },
-  cropActive: { backgroundColor: '#FEF3C7', borderColor: '#F59E0B' },
-  cropIcon: { fontSize: 32, marginBottom: 8 },
-  cropName: { fontSize: 12, fontWeight: 'bold', color: '#6B7280' },
-  cropNameActive: { color: '#92400E' },
-  getBtn: { backgroundColor: '#F59E0B', padding: 18, borderRadius: 12, alignItems: 'center' },
-  getBtnDisabled: { backgroundColor: '#D1D5DB' },
-  getBtnText: { color: 'white', fontSize: 16, fontWeight: 'bold' },
-  tipsCard: { backgroundColor: 'white', margin: 15, padding: 20, borderRadius: 15, elevation: 2 },
-  tipItem: { flexDirection: 'row', gap: 12, marginBottom: 20 },
-  tipBar: { width: 4, borderRadius: 2 },
-  flex1: { flex: 1 },
-  tipTitle: { fontSize: 15, fontWeight: 'bold', color: '#1F2937', marginBottom: 6 },
-  tipText: { fontSize: 14, color: '#4B5563', lineHeight: 20 },
-  tipTextPurple: { fontSize: 14, color: '#5B21B6', fontWeight: '600', backgroundColor: '#F3E8FF', padding: 12, borderRadius: 8 },
-  profitBox: { backgroundColor: '#FEF3C7', padding: 20, borderRadius: 15, borderWidth: 2, borderColor: '#FCD34D', marginTop: 10 },
-  profitTitle: { fontSize: 16, fontWeight: 'bold', color: '#78350F', marginBottom: 8 },
-  profitText: { fontSize: 14, color: '#92400E', fontWeight: '600', lineHeight: 20 },
-});
+  const tipsData = {
+    'Seasonal': [
+      {
+        icon: <Sun color="#F59E0B" size={24} />,
+        title: 'Kharif Season Tips (Jun-Oct)',
+        tips: [
+          'Sow crops with first monsoon rains for best germination',
+          'Ensure proper drainage - waterlogging kills crops',
+          'Apply basal dose of fertilizer at sowing time',
+          'Watch for stem borer & leaf folder in paddy',
+          'Weeding at 20-25 days critical for yield'
+        ],
+        color: '#FEF3C7'
+      },
+      {
+        icon: <CloudRain color="#3B82F6" size={24} />,
+        title: 'Rabi Season Tips (Nov-Mar)',
+        tips: [
+          'Sow wheat before Nov 30 for maximum yield',
+          'First irrigation 20-25 days after sowing',
+          'Protect from frost - light irrigation helps',
+          'Apply urea in 2-3 splits for better uptake',
+          'Harvest when moisture 20-22% for wheat'
+        ],
+        color: '#DBEAFE'
+      },
+      {
+        icon: <Wind color="#10B981" size={24} />,
+        title: 'Summer Season Tips (Mar-Jun)',
+        tips: [
+          'Grow short duration crops - green gram, fodder',
+          'Mulching mandatory to conserve moisture',
+          'Irrigate early morning or evening only',
+          'Shade net for nursery vegetables',
+          'Deep ploughing to kill pests & weeds'
+        ],
+        color: '#D1FAE5'
+      }
+    ],
+    'Crop Wise': [
+      {
+        icon: <Sprout color="#16A34A" size={24} />,
+        title: 'Paddy Smart Tips',
+        tips: [
+          'SRI method: 25% less water, 30% more yield',
+          'Transplant 14-21 day old seedlings',
+          'Alternate wetting-drying saves 30% water',
+          'Zinc spray if leaves show yellow streaks',
+          'Harvest at 80% grain maturity'
+        ],
+        color: '#F0FDF4'
+      },
+      {
+        icon: <Sprout color="#EF4444" size={24} />,
+        title: 'Cotton Smart Tips',
+        tips: [
+          'Seed treatment with Imidacloprid 70WS',
+          'Spacing 90x60cm for better aeration',
+          'First irrigation 30-35 days after sowing',
+          'Pinching at 75cm height for more branches',
+          'Pick cotton when bolls fully open & dry'
+        ],
+        color: '#FEE2E2'
+      },
+      {
+        icon: <Sprout color="#8B5CF6" size={24} />,
+        title: 'Sugarcane Smart Tips',
+        tips: [
+          'Plant 3-bud setts in Feb-Mar for best yield',
+          'Trench method saves 40% water',
+          'Earthing up at 90 & 150 days',
+          'Propping prevents lodging in winds',
+          'Harvest when brix reaches 18-20%'
+        ],
+        color: '#EDE9FE'
+      }
+    ],
+    'Water': [
+      {
+        icon: <Droplets color="#0EA5E9" size={24} />,
+        title: 'Smart Irrigation Tips',
+        tips: [
+          'Drip irrigation saves 50-60% water',
+          'Irrigate early morning 6-9 AM or evening 4-7 PM',
+          'Check soil moisture - 2 inch deep before watering',
+          'Mulching reduces evaporation by 70%',
+          'Rainwater harvesting for summer use'
+        ],
+        color: '#E0F2FE'
+      },
+      {
+        icon: <Droplets color="#06B6D4" size={24} />,
+        title: 'Water Conservation',
+        tips: [
+          'Laser land leveling saves 25% water',
+          'Alternate furrow irrigation for row crops',
+          'Use moisture meter for exact irrigation',
+          'Cover crops reduce soil water loss',
+          'Avoid midday irrigation - 40% loss'
+        ],
+        color: '#CFFAFE'
+      }
+    ],
+    'Pest Control': [
+      {
+        icon: <Bug color="#DC2626" size={24} />,
+        title: 'Organic Pest Control',
+        tips: [
+          'Neem oil 5ml + soap 1g per liter water',
+          'Yellow sticky traps for whitefly & aphids',
+          'Trichoderma 5g/kg seed treatment',
+          'Pheromone traps for bollworm - 5 per acre',
+          'Introduce ladybugs for aphid control'
+        ],
+        color: '#FEE2E2'
+      },
+      {
+        icon: <Bug color="#F59E0B" size={24} />,
+        title: 'Chemical Control Tips',
+        tips: [
+          'Spray early morning or evening only',
+          'Rotate pesticides to avoid resistance',
+          'Follow waiting period before harvest',
+          'Use flat fan nozzle for uniform spray',
+          'Never mix more than 2 chemicals'
+        ],
+        color: '#FEF3C7'
+      }
+    ],
+    'Soil Health': [
+      {
+        icon: <Sprout color="#92400E" size={24} />,
+        title: 'Soil Improvement Tips
