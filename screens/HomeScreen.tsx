@@ -1,11 +1,70 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Modal } from 'react-native';
+import React, { useState, useContext, useEffect, useRef } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Modal, FlatList, Dimensions } from 'react-native';
 import { useProfile } from '../Context/ProfileContext';
-import { ClipboardList, Sun, Beaker, Bug, Lightbulb, Landmark, User, Globe, Bell, FileText, Share2, Info, Sprout } from 'lucide-react-native';
+import { LanguageContext } from '../Context/LanguageContext';
+import { ClipboardList, Sun, Beaker, Bug, Lightbulb, Landmark, User, Globe, Bell, FileText, Share2, Info, Sprout, AlertCircle } from 'lucide-react-native';
+
+const { width } = Dimensions.get('window');
 
 export default function HomeScreen({ navigation }) {
   const { profile } = useProfile();
+  const { language } = useContext(LanguageContext);
   const [menu, setMenu] = useState(false);
+  const [currentBanner, setCurrentBanner] = useState(0);
+  const flatListRef = useRef(null);
+
+  const languageMap = {
+    'en': 'English',
+    'te': 'తెలుగు',
+    'ta': 'தமிழ்',
+    'hi': 'हिंदी',
+    'kn': 'ಕನ್ನಡ'
+  };
+
+  // ✅ DYNAMIC BANNERS - GOOGLE/INTERNET NUNCHI DATA RAATLE KABATTI DUMMY DATA PETTINA
+  // REAL APP LO AI + API CALL CHEYYALI: weather + govt schemes + pest alerts
+  const [banners, setBanners] = useState([
+    {
+      id: '1',
+      type: 'CRITICAL',
+      bg: '#D32F2F',
+      icon: AlertCircle,
+      title: 'Heavy rain expected tomorrow',
+      desc: `in ${profile?.location || 'your area'}. Protect crops now.`
+    },
+    {
+      id: '2',
+      type: 'TRENDING TIP',
+      bg: '#1976D2',
+      icon: Lightbulb,
+      title: 'Best time for Urea application',
+      desc: 'Soil moisture is optimal today. Apply within 24 hours.'
+    },
+    {
+      id: '3',
+      type: 'GOVT UPDATE',
+      bg: '#2E7D32',
+      icon: Landmark,
+      title: 'PM-KISAN 17th Installment',
+      desc: 'Released this week. Check status in Profile.'
+    },
+  ]);
+
+  // ✅ AUTO SLIDE EVERY 4 SECONDS
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const nextIndex = (currentBanner + 1) % banners.length;
+      setCurrentBanner(nextIndex);
+      flatListRef.current?.scrollToIndex({ index: nextIndex, animated: true });
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [currentBanner, banners.length]);
+
+  // TODO: REAL APP LO EE FUNCTION GOOGLE NUNCHI FETCH CHEYYALI
+  // useEffect(() => {
+  //   fetchDynamicAlerts(profile.location).then(data => setBanners(data));
+  // }, [profile.location]);
 
   const Card = ({ icon, title, color, screen }) => (
     <TouchableOpacity style={styles.card} onPress={() => navigation.navigate(screen)}>
@@ -24,6 +83,20 @@ export default function HomeScreen({ navigation }) {
     </TouchableOpacity>
   );
 
+  const renderBanner = ({ item }) => {
+    const Icon = item.icon;
+    return (
+      <View style={[styles.bannerCard, { backgroundColor: item.bg, width: width - 30 }]}>
+        <View style={styles.bannerHeader}>
+          <Icon color="#FFF" size={20} fill="#FFF" />
+          <Text style={styles.bannerLabel}>{item.type}</Text>
+        </View>
+        <Text style={styles.bannerTitle}>{item.title}</Text>
+        <Text style={styles.bannerDesc}>{item.desc}</Text>
+      </View>
+    );
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -40,15 +113,38 @@ export default function HomeScreen({ navigation }) {
       </View>
 
       <ScrollView style={styles.scroll}>
+        {/* ✅ WELCOME MESSAGE MARCHINA */}
         <View style={styles.welcomeBox}>
-          <Text style={styles.welcomeText}>Welcome back, {profile.name || 'Farmer'}! 🌾</Text>
-          <Text style={styles.welcomeSub}>Your smart farming is ready.</Text>
+          <Text style={styles.welcomeText}>Welcome {profile.name || 'Farmer'},</Text>
+          <Text style={styles.welcomeSub}>Your smart farming assistant is ready 🌾</Text>
         </View>
 
-        <View style={styles.tipBox}>
-          <Text style={styles.tipTag}>TRENDING TIP</Text>
-          <Text style={styles.tipTitle}>Best time for Urea</Text>
-          <Text style={styles.tipDesc}>Soil moisture is optimal today</Text>
+        {/* ✅ AUTO SLIDING DYNAMIC BANNER */}
+        <View style={styles.bannerContainer}>
+          <FlatList
+            ref={flatListRef}
+            data={banners}
+            renderItem={renderBanner}
+            keyExtractor={(item) => item.id}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onMomentumScrollEnd={(e) => {
+              const index = Math.round(e.nativeEvent.contentOffset.x / (width - 30));
+              setCurrentBanner(index);
+            }}
+          />
+          <View style={styles.dotsContainer}>
+            {banners.map((_, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.dot,
+                  currentBanner === index ? styles.dotActive : styles.dotInactive
+                ]}
+              />
+            ))}
+          </View>
         </View>
 
         <Text style={styles.sectionTitle}>Farm Management</Text>
@@ -66,10 +162,15 @@ export default function HomeScreen({ navigation }) {
         <TouchableOpacity style={styles.modalBg} onPress={() => setMenu(false)}>
           <View style={styles.menuBox}>
             <MenuItem icon={<User color="#4CAF50" size={20} />} label="My Profile" sub={profile.name} onPress={() => {setMenu(false); navigation.navigate('PROFILE')}} />
-            <MenuItem icon={<Globe color="#3B82F6" size={20} />} label="Change Language" sub={profile.language} onPress={() => {setMenu(false); navigation.navigate('LANGUAGE')}} />
+            <MenuItem
+              icon={<Globe color="#3B82F6" size={20} />}
+              label="Change Language"
+              sub={languageMap[language] || 'English'}
+              onPress={() => {setMenu(false); navigation.navigate('LANGUAGE')}}
+            />
             <MenuItem icon={<Sprout color="#10B981" size={20} />} label="KISAN AI Assistant" onPress={() => {setMenu(false); navigation.navigate('KISAN_AI')}} />
             <MenuItem icon={<Bell color="#F59E0B" size={20} />} label="Notifications" sub="Weather & Govt Alerts" onPress={() => setMenu(false)} />
-            <MenuItem icon={<FileText color="#6366F1" size={20} />} label="My Farm Details" sub={`${profile.landSize} Ac, ${profile.soilType}`} onPress={() => setMenu(false)} />
+            <MenuItem icon={<FileText color="#6366F1" size={20} />} label="My Farm Details" sub={`${profile.landSize || '0'} Ac, ${profile.soilType || 'N/A'}`} onPress={() => setMenu(false)} />
             <View style={styles.divider} />
             <MenuItem icon={<Share2 color="#8B5CF6" size={20} />} label="Share App" onPress={() => setMenu(false)} />
             <MenuItem icon={<Info color="#6B7280" size={20} />} label="About Us" sub="v1.0.0" onPress={() => setMenu(false)} />
@@ -91,11 +192,17 @@ const styles = StyleSheet.create({
   scroll: { flex: 1 },
   welcomeBox: { backgroundColor: 'white', margin: 15, padding: 20, borderRadius: 15, elevation: 2 },
   welcomeText: { fontSize: 20, fontWeight: 'bold', color: '#1F2937' },
-  welcomeSub: { fontSize: 14, color: '#6B7280', marginTop: 5 },
-  tipBox: { backgroundColor: '#2563EB', margin: 15, padding: 20, borderRadius: 15 },
-  tipTag: { backgroundColor: 'rgba(255,255,255,0.3)', color: 'white', fontSize: 10, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4, alignSelf: 'flex-start', fontWeight: 'bold' },
-  tipTitle: { fontSize: 20, fontWeight: 'bold', color: 'white', marginTop: 10 },
-  tipDesc: { fontSize: 14, color: 'white', marginTop: 5 },
+  welcomeSub: { fontSize: 14, color: '#2E7D32', marginTop: 5, fontWeight: '600' },
+  bannerContainer: { marginBottom: 10 },
+  bannerCard: { padding: 18, borderRadius: 12, marginHorizontal: 15, marginBottom: 8 },
+  bannerHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 },
+  bannerLabel: { color: '#FFF', fontSize: 12, fontWeight: '700', letterSpacing: 1 },
+  bannerTitle: { color: '#FFF', fontSize: 18, fontWeight: '700', marginBottom: 6 },
+  bannerDesc: { color: '#FFF', fontSize: 14, opacity: 0.95, lineHeight: 20 },
+  dotsContainer: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 6, marginTop: 4 },
+  dot: { width: 8, height: 8, borderRadius: 4 },
+  dotActive: { backgroundColor: '#2E7D32', width: 24 },
+  dotInactive: { backgroundColor: '#D1D5DB' },
   sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#1F2937', marginLeft: 15, marginTop: 10, marginBottom: 10 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', padding: 10, gap: 10 },
   card: { backgroundColor: 'white', width: '47%', padding: 20, borderRadius: 15, alignItems: 'center', elevation: 2 },
