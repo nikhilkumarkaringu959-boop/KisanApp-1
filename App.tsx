@@ -5,11 +5,16 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StatusBar } from 'expo-status-bar';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { Home, Sprout, User } from 'lucide-react-native';
-import { ProfileProvider, useProfile } from './Context/ProfileContext'; // ✅ useProfile ADD
-// Screens Import
+import { ProfileProvider, useProfile } from './Context/ProfileContext';
+
+// Screens
 import LanguageScreen from './screens/LanguageScreen';
 import OnboardingScreen from './screens/OnboardingScreen';
-import FarmerProfileScreen from './screens/FarmerProfileScreen'; // ✅ ADD CHESA
+import FarmerProfileScreen from './screens/FarmerProfileScreen';
+import ProfileDetailScreen from './screens/ProfileDetailScreen';
+import FarmDetailsScreen from './screens/FarmDetailsScreen';
+import AboutUsScreen from './screens/AboutUsScreen';
+import NotificationsScreen from './screens/NotificationsScreen';
 import HomeScreen from './screens/HomeScreen';
 import CropInfoScreen from './screens/CropInfoScreen';
 import WeatherScreen from './screens/WeatherScreen';
@@ -22,85 +27,84 @@ import KisanAIScreen from './screens/KisanAIScreen';
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-// ✅ NEE BOTTOM TABS - DESIGN SAME
 function TabNavigator() {
   return (
     <Tab.Navigator
-      screenOptions={{
-        headerShown: false,
-        tabBarStyle: styles.tabBar,
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          let IconComponent;
+
+          if (route.name === 'HOME') {
+            IconComponent = Home;
+          } else if (route.name === 'CROP') {
+            IconComponent = Sprout;
+          } else if (route.name === 'PROFILE') {
+            IconComponent = User;
+          }
+
+          return <IconComponent color={color} size={size} />;
+        },
         tabBarActiveTintColor: '#16A34A',
-        tabBarInactiveTintColor: '#6B7280',
-      }}
+        tabBarInactiveTintColor: '#9CA3AF',
+        tabBarStyle: {
+          height: 60,
+          paddingBottom: 8,
+          paddingTop: 8,
+          backgroundColor: '#FFFFFF',
+          borderTopWidth: 1,
+          borderTopColor: '#E5E7EB',
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '600',
+        },
+        headerShown: false,
+      })}
     >
       <Tab.Screen 
         name="HOME" 
         component={HomeScreen}
-        options={{
-          tabBarIcon: ({ color }) => <Home color={color} size={24} />,
-          tabBarLabel: 'Home'
-        }}
+        options={{ tabBarLabel: 'Home' }}
       />
       <Tab.Screen 
-        name="KISAN_AI_TAB" 
-        component={HomeScreen}
-        options={{
-          tabBarIcon: () => (
-            <View style={styles.aiButton}>
-              <Sprout color="white" size={28} />
-            </View>
-          ),
-          tabBarLabel: () => <Text style={styles.aiLabel}>KISAN AI</Text>
-        }}
-        listeners={({ navigation }) => ({
-          tabPress: (e) => {
-            e.preventDefault();
-            navigation.navigate('KISAN_AI');
-          },
-        })}
+        name="CROP" 
+        component={CropInfoScreen}
+        options={{ tabBarLabel: 'Crops' }}
       />
       <Tab.Screen 
         name="PROFILE" 
-        component={HomeScreen}
-        options={{
-          tabBarIcon: ({ color }) => <User color={color} size={24} />,
-          tabBarLabel: 'Profile'
-        }}
+        component={FarmerProfileScreen}
+        options={{ tabBarLabel: 'Profile' }}
       />
     </Tab.Navigator>
   );
 }
 
-// ✅ LOADING SCREEN - NEW
-function LoadingScreen() {
-  return (
-    <View style={styles.loadingContainer}>
-      <ActivityIndicator size="large" color="#16A34A" />
-    </View>
-  );
-}
-
-// ✅ NAVIGATOR WITH BUG FIX
 function AppNavigator() {
-  const { isProfileComplete, loading } = useProfile();
-  const [initialRoute, setInitialRoute] = useState<string | null>(null);
+  const { profile, isLoading } = useProfile();
+  const [initialRoute, setInitialRoute] = useState(null);
 
   useEffect(() => {
-    // ✅ BUG FIX: loading false ayyaka matrame check chey
-    if (!loading) {
-      if (!isProfileComplete()) {
-        // Profile complete kaakapothe Language nunchi start
+    if (!isLoading) {
+      if (!profile.language) {
         setInitialRoute('LANGUAGE');
+      } else if (!profile.hasCompletedOnboarding) {
+        setInitialRoute('ONBOARDING');
+      } else if (!profile.name || !profile.district) {
+        setInitialRoute('FARMER_PROFILE');
       } else {
-        // Profile unte direct Main
         setInitialRoute('MAIN');
       }
     }
-  }, [loading]);
+  }, [profile, isLoading]);
 
-  // Loading ayye varaku LoadingScreen
-  if (loading ||!initialRoute) {
-    return <LoadingScreen />;
+  if (isLoading || !initialRoute) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#16A34A" />
+        <Text style={styles.loadingText}>Loading Kisan AI...</Text>
+      </View>
+    );
   }
 
   return (
@@ -112,8 +116,12 @@ function AppNavigator() {
       >
         <Stack.Screen name="LANGUAGE" component={LanguageScreen} />
         <Stack.Screen name="ONBOARDING" component={OnboardingScreen} />
-        <Stack.Screen name="FARMER_PROFILE" component={FarmerProfileScreen} /> {/* ✅ ADD */}
+        <Stack.Screen name="FARMER_PROFILE" component={FarmerProfileScreen} />
         <Stack.Screen name="MAIN" component={TabNavigator} />
+        <Stack.Screen name="PROFILE_DETAIL" component={ProfileDetailScreen} />
+        <Stack.Screen name="FARM_DETAILS" component={FarmDetailsScreen} />
+        <Stack.Screen name="ABOUT_US" component={AboutUsScreen} />
+        <Stack.Screen name="NOTIFICATIONS" component={NotificationsScreen} />
         <Stack.Screen name="CROP" component={CropInfoScreen} />
         <Stack.Screen name="WEATHER" component={WeatherScreen} />
         <Stack.Screen name="FERTILIZER" component={FertilizerScreen} />
@@ -135,37 +143,16 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  tabBar: {
-    backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
-    height: 70,
-    paddingBottom: 10,
-    paddingTop: 10,
-  },
-  aiButton: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: '#16A34A',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-  },
-  aiLabel: {
-    fontSize: 12,
-    color: '#6B7280',
-    fontWeight: '600',
-    marginTop: -15,
-  },
-  loadingContainer: { // ✅ ADD CHESA
+  loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#F9FAFB',
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: '#6B7280',
+    fontWeight: '500',
   },
 });
