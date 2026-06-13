@@ -4,7 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StatusBar } from 'expo-status-bar';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
-import { Home, Sprout, User } from 'lucide-react-native';
+import { Home, Leaf, User } from 'lucide-react-native';
 import { ProfileProvider, useProfile } from './Context/ProfileContext';
 
 // Screens
@@ -31,23 +31,19 @@ function TabNavigator() {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          let IconComponent;
-
+        tabBarIcon: ({ focused, color }) => {
           if (route.name === 'HOME') {
-            IconComponent = Home;
-          } else if (route.name === 'CROP') {
-            IconComponent = Sprout;
+            return <Home color={color} size={24} strokeWidth={focused ? 2.5 : 2} />;
+          } else if (route.name === 'AI') {
+            return <Leaf color={color} size={24} strokeWidth={focused ? 2.5 : 2} />;
           } else if (route.name === 'PROFILE') {
-            IconComponent = User;
+            return <User color={color} size={24} strokeWidth={focused ? 2.5 : 2} />;
           }
-
-          return <IconComponent color={color} size={size} />;
         },
         tabBarActiveTintColor: '#16A34A',
         tabBarInactiveTintColor: '#9CA3AF',
         tabBarStyle: {
-          height: 60,
+          height: 65,
           paddingBottom: 8,
           paddingTop: 8,
           backgroundColor: '#FFFFFF',
@@ -67,9 +63,9 @@ function TabNavigator() {
         options={{ tabBarLabel: 'Home' }}
       />
       <Tab.Screen 
-        name="CROP" 
-        component={CropInfoScreen}
-        options={{ tabBarLabel: 'Crops' }}
+        name="AI" 
+        component={KisanAIScreen}
+        options={{ tabBarLabel: 'AI' }}
       />
       <Tab.Screen 
         name="PROFILE" 
