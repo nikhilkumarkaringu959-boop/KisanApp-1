@@ -1,45 +1,36 @@
-import React, { useContext } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import { LanguageContext } from '../contexts/LanguageContext';
-import { useNavigation } from '@react-navigation/native';
-import { Sprout } from 'lucide-react-native';
+import { View, Text, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
+import { Leaf } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { COLORS, FONTS } from '../../constants/Theme';
 
-export default function LanguageSelectScreen() {
-  const navigation = useNavigation();
-  const { changeLanguage } = useContext(LanguageContext);
-
-  const handleLanguageSelect = async (langCode) => {
-    await changeLanguage(langCode); // 'en', 'te', 'ta', 'hi', 'kn'
-    navigation.navigate('FarmerProfile');
-  };
-
+export default function LanguageScreen() {
+  const router = useRouter();
   const languages = [
-    { code: 'en', name: 'English', native: 'English' },
-    { code: 'te', name: 'Telugu', native: 'తెలుగు' },
-    { code: 'ta', name: 'Tamil', native: 'தமிழ்' },
-    { code: 'hi', name: 'Hindi', native: 'हिंदी' },
-    { code: 'kn', name: 'Kannada', native: 'ಕನ್ನಡ' },
+    { name: 'English', native: 'English' },
+    { name: 'Telugu', native: 'తెలుగు' },
+    { name: 'Tamil', native: 'தமிழ்' },
+    { name: 'Hindi', native: 'हिंदी' },
+    { name: 'Kannada', native: 'ಕನ್ನಡ' },
   ];
+
+  const selectLanguage = async (lang) => {
+    await AsyncStorage.setItem('language', lang);
+    router.push('/screens/FarmerProfile');
+  };
 
   return (
     <View style={styles.container}>
-      <View style={styles.logoContainer}>
-        <View style={styles.logoCircle}>
-          <Sprout color="#4CAF50" size={40} />
-        </View>
+      <StatusBar barStyle="dark-content" />
+      <View style={styles.logoCircle}>
+        <Leaf size={40} color={COLORS.primaryLight} strokeWidth={2.5} />
       </View>
-
-      <Text style={styles.title}>Welcome to KISAN</Text>
-      <Text style={styles.subtitle}>Select your preferred language</Text>
-
-      {languages.map((lang) => (
-        <TouchableOpacity
-          key={lang.code}
-          style={styles.langCard}
-          onPress={() => handleLanguageSelect(lang.code)}
-        >
-          <Text style={styles.langName}>{lang.name}</Text>
-          <Text style={styles.langNative}>{lang.native}</Text>
+      <Text style={styles.title}>{FONTS.welcome}</Text>
+      <Text style={styles.subtitle}>{FONTS.language}</Text>
+      {languages.map((lang, i) => (
+        <TouchableOpacity key={i} style={styles.langCard} onPress={() => selectLanguage(lang.name)}>
+          <Text style={styles.langLeft}>{lang.name}</Text>
+          <Text style={styles.langRight}>{lang.native}</Text>
         </TouchableOpacity>
       ))}
     </View>
@@ -47,65 +38,11 @@ export default function LanguageSelectScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 20,
-    paddingTop: 80,
-  },
-  logoContainer: {
-    alignItems: 'center',
-    marginBottom: 30,
-  },
-  logoCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#E8F5E9',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#2E7D32',
-    textAlign: 'center',
-    fontFamily: 'serif', // nee font style
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
-    fontFamily: 'serif',
-    marginBottom: 40,
-  },
-  langCard: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    padding: 20,
-    borderRadius: 12,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  langName: {
-    fontSize: 18,
-    color: '#212121',
-    fontFamily: 'serif',
-    fontWeight: '500',
-  },
-  langNative: {
-    fontSize: 18,
-    color: '#2E7D32',
-    fontFamily: 'serif',
-    fontWeight: '600',
-  },
+  container: { flex: 1, backgroundColor: COLORS.background, padding: 24, alignItems: 'center', paddingTop: 100 },
+  logoCircle: { width: 80, height: 80, borderRadius: 40, backgroundColor: COLORS.leafBg, alignItems: 'center', justifyContent: 'center', marginBottom: 24 },
+  title: { fontSize: 32, fontWeight: '700', color: COLORS.primary, marginBottom: 8 },
+  subtitle: { fontSize: 14, color: COLORS.textLight, marginBottom: 40 },
+  langCard: { width: '100%', flexDirection: 'row', justifyContent: 'space-between', backgroundColor: COLORS.card, paddingVertical: 18, paddingHorizontal: 20, borderRadius: 12, marginBottom: 12, elevation: 2 },
+  langLeft: { fontSize: 18, fontWeight: '600', color: COLORS.text },
+  langRight: { fontSize: 18, fontWeight: '600', color: COLORS.primaryLight },
 });
