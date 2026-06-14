@@ -1,28 +1,28 @@
 export const COLORS = {
-  primary: '#1B5E20',      // Dark Green - Header BG
-  primaryLight: '#00C853', // Light Green - Buttons, Icons
-  background: '#FFFFFF',   // White page BG
-  card: '#FFFFFF',         // Card BG
-  text: '#1a1a1a',         // Black text
-  textLight: '#666666',    // Gray text
-  tile1: '#FFE8CC',        // Crop Info - Light Orange
-  tile2: '#D6EFFF',        // Weather - Light Blue  
-  tile3: '#D6F5E8',        // Fertilizer - Light Green
-  tile4: '#FFE0E0',        // Pest - Light Red
-  tile5: '#FFF9D6',        // Tips - Light Yellow
-  tile6: '#E8D6FF',        // Govt - Light Purple
-  warning: '#FFF3CD',      // Yellow warning box
-  leafBg: '#E8F5E8',       // Logo circle BG
+  primary: '#1B5E20',
+  primaryLight: '#00C853',
+  background: '#FFFFFF',
+  card: '#FFFFFF',
+  text: '#1a1a1a',
+  textLight: '#666666',
+  tile1: '#FFE8CC',
+  tile2: '#D6EFFF',
+  tile3: '#D6F5E8',
+  tile4: '#FFE0E0',
+  tile5: '#FFF9D6',
+  tile6: '#E8D6FF',
+  warning: '#FFF3CD',
+  leafBg: '#E8F5E8',
 };
 
-export const HEART_FONT = {
-  welcome: 'Welc♡me t♡ KISAN',
-  language: 'Select y♡ur preferred language',
-  crop: 'Cr♡p\nInf♡rmati♡n',
-  weather: 'Weather\nF♡recast',
-  fertilizer: 'Fertilizer\nCalculat♡r',
-  pest: 'Smart Pest\nC♡ntr♡l',
+export const FONTS = {
+  welcome: 'Welcome to KISAN',
+  language: 'Select your preferred language',
+  crop: 'Crop\nInformation',
+  weather: 'Weather\nForecast',
+  fertilizer: 'Fertilizer\nCalculator',
+  pest: 'Smart Pest\nControl',
   tips: 'Smart Farming\nTips',
-  govt: 'G♡vt.\nSchemes',
-  profile: 'Farmer\nPr♡file',
+  govt: 'Govt.\nSchemes',
+  profile: 'Farmer\nProfile',
 };
