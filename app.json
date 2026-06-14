@@ -6,42 +6,23 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "scheme": "kisan",
-    "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#1B5E20"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
-    "ios": {
-      "supportsTablet": true
-    },
     "android": {
       "package": "com.karingunikhil.kisan",
-      "versionCode": 1,
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#1B5E20"
-      },
-      "permissions": [
-        "ACCESS_COARSE_LOCATION",
-        "ACCESS_FINE_LOCATION"
-      ]
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
+      "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"]
     },
     "plugins": [
       "expo-router",
-      [
-        "expo-location",
-        {
-          "locationAlwaysAndWhenInUsePermission": "Allow KISAN to use your location for weather updates."
-        }
-      ]
-    ],
+      ["expo-location", {
+        "locationAlwaysAndWhenInUsePermission": "Allow KISAN to use your location for weather updates."
+      }]
+    ]
+  }
+}, 
     "extra": {
       "eas": {
         "projectId": "ec826a31-8491-436e-9"
