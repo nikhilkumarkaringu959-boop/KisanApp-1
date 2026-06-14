@@ -1,13 +1,11 @@
 workflows:
   android-release:
-    name: KisanApp Android Release
+    name: KisanApp Android Free
     max_build_duration: 60
-    instance_type: linux_x2
+    instance_type: linux  # ← IDI CHANGE CHESANU. linux_x2 free lo undadu
     environment:
       node: 18
       java: 17
-      vars:
-        EXPO_PUBLIC_GEMINI_API_KEY: ${GEMINI_API_KEY} # Codemagic UI lo set chey
     cache:
       cache_paths:
         - ~/.npm
@@ -19,26 +17,9 @@ workflows:
       - name: Expo prebuild
         script: | 
           npx expo prebuild --platform android
-      - name: Set up keystore
-        script: | 
-          echo $CM_KEYSTORE | base64 --decode > /tmp/keystore.jks
-          cat >> "$CM_BUILD_DIR/android/gradle.properties" << EOF
-          MYAPP_UPLOAD_STORE_FILE=/tmp/keystore.jks
-          MYAPP_UPLOAD_KEY_ALIAS=$CM_KEYSTORE_ALIAS
-          MYAPP_UPLOAD_STORE_PASSWORD=$CM_KEYSTORE_PASSWORD
-          MYAPP_UPLOAD_KEY_PASSWORD=$CM_KEYSTORE_PASSWORD
-          EOF
-      - name: Build Android APK
+      - name: Build Android Debug APK
         script: | 
           cd android
-          ./gradlew assembleRelease
+          ./gradlew assembleDebug
     artifacts:
-      - android/app/build/outputs/**/*.apk
-      - android/app/build/outputs/**/*.aab
-    publishing:
-      email:
-        recipients:
-          - your-email@gmail.com
-        notify:
-          success: true
-          failure: true
+      - android/app/build/outputs/apk/debug/app-debug.apk
