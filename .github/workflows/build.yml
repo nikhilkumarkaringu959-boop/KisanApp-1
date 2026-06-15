@@ -22,27 +22,25 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
         
+      - name: Setup Expo
+        uses: expo/expo-github-action@v8
+        with:
+          expo-version: latest
+          
       - name: Install dependencies
         run: npm install --legacy-peer-deps
         
-      - name: Create dummy assets
-        run: |
-          mkdir -p assets
-          echo "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==" | base64 -d > assets/icon.png
-          cp assets/icon.png assets/splash.png
-          cp assets/icon.png assets/adaptive-icon.png
-          cp assets/icon.png assets/favicon.png
-        
       - name: Prebuild Android
         run: npx expo prebuild --platform android --clean
+        
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
         
       - name: Build APK
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleRelease --no-daemon --stacktrace
-        env:
-          CI: true
+          ./gradlew assembleRelease --no-daemon
           
       - name: Upload APK
         uses: actions/upload-artifact@v4
