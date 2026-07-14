@@ -1,139 +1,202 @@
-import { View, Text, StyleSheet, ActivityIndicator, ScrollView, TouchableOpacity, TextInput } from 'react-native';
-import { useEffect, useState } from 'react';
-import * as Location from 'expo-location';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, FlatList } from 'react-native';
+import { useState } from 'react';
+import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import * as Location from 'expo-location';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function WeatherScreen() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
   const [weather, setWeather] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [locationName, setLocationName] = useState('Detecting...');
-  const [lat, setLat] = useState(13.6288); // Default Tirupati
-  const [lon, setLon] = useState(79.4192);
-  const [searchCity, setSearchCity] = useState('');
+  const [error, setError] = useState('');
 
-  // 1. AUTO DETECT LOCATION
-  const getCurrentLocation = async () => {
+  const fetchWeather = async () => {
     setLoading(true);
-    let { status } = await Location.requestForegroundPermissionsAsync();
-    if (status!== 'granted') {
-      setLocationName('Permission Denied');
-      setLoading(false);
-      return;
-    }
+    setError('');
+    setWeather(null);
 
-    let loc = await Location.getCurrentPositionAsync({});
-    setLat(loc.coords.latitude);
-    setLon(loc.coords.longitude);
-
-    // Get city name
-    let address = await Location.reverseGeocodeAsync({
-      latitude: loc.coords.latitude,
-      longitude: loc.coords.longitude,
-    });
-    setLocationName(`${address[0].city}, ${address[0].region}`);
-    fetchWeather(loc.coords.latitude, loc.coords.longitude);
-  };
-
-  // 2. SEARCH CITY BY NAME
-  const searchLocation = async () => {
-    if(!searchCity) return;
-    setLoading(true);
     try {
-      const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${searchCity}&count=1`);
-      const data = await res.json();
-      if(data.results && data.results.length > 0) {
-        const city = data.results[0];
-        setLat(city.latitude);
-        setLon(city.longitude);
-        setLocationName(`${city.name}, ${city.country}`);
-        fetchWeather(city.latitude, city.longitude);
+      // 1. LOCATION TEESUKOVADAM - Profile nunchi leda GPS nunchi
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status!== 'granted') {
+        setError('Location permission denied');
+        setLoading(false);
+        return;
       }
-    } catch(e) {
-      console.log(e);
+      let location = await Location.getCurrentPositionAsync({});
+      const { latitude, longitude } = location.coords;
+
+      // 2. OPEN-METEO API CALL - Free, No Key Needed
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation,weathercode&hourly=temperature_2m,weathercode,precipitation_probability&daily=temperature_2m_max,temperature_2m_min,weathercode,precipitation_probability_max&timezone=auto&forecast_days=10`;
+
+      const response = await fetch(url);
+      const data = await response.json();
+
+      setWeather(data);
+    } catch (err) {
+      setError('Failed to fetch weather. Please check internet.');
+      console.log(err);
+    } finally {
       setLoading(false);
     }
   }
 
-  // 3. FETCH WEATHER API
-  const fetchWeather = async (latitude: number, longitude: number) => {
-    try {
-      const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto`;
-      const res = await fetch(url);
-      const data = await res.json();
-      setWeather(data);
-    } catch (e) {
-      console.log(e);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Weather code ni icon ga marchadam
+  const getWeatherIcon = (code: number) => {
+    if(code === 0) return 'sunny';
+    if(code < 3) return 'partly-sunny';
+    if(code < 48) return 'cloudy';
+    if(code < 67) return 'rainy';
+    return 'thunderstorm';
+  }
 
-  useEffect(() => {
-    getCurrentLocation(); // App open ayinappude auto detect
-  }, []);
-
-  if (loading) return <ActivityIndicator size="large" color="#4CAF50" style={{flex:1, justifyContent: 'center'}} />;
-
-  const current = weather?.current;
-  const daily = weather?.daily;
+  const getWeatherText = (code: number) => {
+    if(code === 0) return 'Clear Sky';
+    if(code < 3) return 'Partly Cloudy';
+    if(code < 48) return 'Cloudy';
+    if(code < 67) return 'Rain';
+    return 'Storm';
+  }
 
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
+      {/* HEADER */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()}>
+          <Ionicons name="arrow-back" size={24} color="white" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Real-time Weather</Text>
+        <View style={{width: 24}} />
+      </View>
 
-      {/* LOCATION BAR */}
-      <View style={styles.locationBar}>
-        <Ionicons name="location" size={20} color="#2E7D32" />
-        <Text style={styles.locationText}>{locationName}</Text>
-        <TouchableOpacity onPress={getCurrentLocation}>
-          <Ionicons name="refresh" size={22} color="#2E7D32" />
+      <ScrollView contentContainerStyle={{paddingBottom: 100}}>
+        {!weather &&!loading && (
+          // FIRST SCREEN - FETCH BUTTON
+          <View style={styles.fetchCard}>
+            <Ionicons name="cloud" size={80} color="#2196F3" />
+            <Text style={styles.fetchTitle}>Get Live Weather Forecast</Text>
+            <Text style={styles.fetchDesc}>Fetch real-time data for your farm's location.</Text>
+            <TouchableOpacity style={styles.fetchBtn} onPress={fetchWeather}>
+              <Text style={styles.fetchBtnText}>Fetch Weather</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {loading && <ActivityIndicator size="large" color="#2196F3" style={{marginTop: 50}} />}
+
+        {error && <Text style={styles.errorText}>{error}</Text>}
+
+        {weather && (
+          // DATA SCREEN
+          <>
+            {/* CURRENT WEATHER CARD */}
+            <View style={styles.currentCard}>
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <Ionicons name="location" size={16} color="white" />
+                <Text style={styles.locationText}> Your Location</Text>
+              </View>
+              <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
+                <Text style={styles.tempText}>{weather.current.temperature_2m}°C</Text>
+                <Text style={styles.conditionText}>{getWeatherText(weather.current.weathercode)}</Text>
+              </View>
+              <View style={styles.statsRow}>
+                <View style={styles.statItem}>
+                  <Ionicons name="water" size={20} color="white" />
+                  <Text style={styles.statValue}>{weather.current.relative_humidity_2m}%</Text>
+                </View>
+                <View style={styles.statItem}>
+                  <Ionicons name="speedometer" size={20} color="white" />
+                  <Text style={styles.statValue}>{weather.current.wind_speed_10m} km/h</Text>
+                </View>
+                <View style={styles.statItem}>
+                  <Ionicons name="cloud-rain" size={20} color="white" />
+                  <Text style={styles.statValue}>{weather.current.precipitation} mm</Text>
+                </View>
+              </View>
+            </View>
+
+            {/* 24 HOUR FORECAST */}
+            <Text style={styles.sectionTitle}>24-Hour Forecast</Text>
+            <FlatList
+              data={weather.hourly.time.slice(0, 24)}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{paddingHorizontal: 15}}
+              keyExtractor={(item) => item}
+              renderItem={({item, index}) => (
+                <View style={styles.hourCard}>
+                  <Text style={styles.hourText}>{index === 0? 'Now' : new Date(item).getHours() + ' PM'}</Text>
+                  <Ionicons name={getWeatherIcon(weather.hourly.weathercode[index]) as any} size={30} color="#FFC107" />
+                  <Text style={styles.hourTemp}>{Math.round(weather.hourly.temperature_2m[index])}°</Text>
+                </View>
+              )}
+            />
+
+            {/* 10 DAY FORECAST */}
+            <View style={styles.dailyCard}>
+              <Text style={styles.sectionTitle}>10-Day Forecast</Text>
+              {weather.daily.time.map((day: string, index: number) => (
+                <View key={day} style={styles.dayRow}>
+                  <Text style={styles.dayName}>{index === 0? 'Today' : new Date(day).toLocaleDateString('en', {weekday: 'short'})}</Text>
+                  <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                    <Ionicons name="water" size={14} color="#2196F3" />
+                    <Text style={styles.rainText}> {weather.daily.precipitation_probability_max[index]}%</Text>
+                  </View>
+                  <Text style={styles.dayTemp}>{Math.round(weather.daily.temperature_2m_max[index])}° / <Text style={{color: 'gray'}}>{Math.round(weather.daily.temperature_2m_min[index])}°</Text></Text>
+                </View>
+              ))}
+            </View>
+          </>
+        )}
+      </ScrollView>
+
+      {/* BOTTOM NAV */}
+      <View style={styles.bottomNav}>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/home')}>
+          <Ionicons name="location-outline" size={24} color="gray" />
+          <Text style={styles.navText}>Home</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.aiBtn} onPress={() => router.push('/chat')}>
+          <Ionicons name="leaf" size={28} color="white" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/profile')}>
+          <Ionicons name="person-outline" size={24} color="gray" />
+          <Text style={styles.navText}>Profile</Text>
         </TouchableOpacity>
       </View>
-
-      {/* SEARCH BOX */}
-      <View style={styles.searchBox}>
-        <TextInput
-          placeholder="Enter City: Hyderabad, Delhi"
-          value={searchCity}
-          onChangeText={setSearchCity}
-          style={styles.input}
-        />
-        <TouchableOpacity style={styles.searchBtn} onPress={searchLocation}>
-          <Text style={{color: 'white', fontWeight: 'bold'}}>Search</Text>
-        </TouchableOpacity>
-      </View>
-
-      <Text style={styles.title}>Weather Forecast</Text>
-
-      <View style={styles.mainCard}>
-        <Text style={styles.temp}>{Math.round(current.temperature_2m)}°C</Text>
-        <Text style={styles.desc}>Humidity: {current.relative_humidity_2m}%</Text>
-        <Text style={styles.desc}>Wind: {current.wind_speed_10m} km/h</Text>
-        <Text style={styles.desc}>Rain: {current.precipitation} mm</Text>
-      </View>
-
-      <Text style={styles.subtitle}>Next 7 Days</Text>
-      {daily.time.map((day: string, i: number) => (
-        <View key={day} style={styles.dayRow}>
-          <Text>{new Date(day).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric' })}</Text>
-          <Text>🌧️ {daily.precipitation_probability_max[i]}%</Text>
-          <Text>{Math.round(daily.temperature_2m_max[i])}° / {Math.round(daily.temperature_2m_min[i])}°</Text>
-        </View>
-      ))}
-    </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 15, backgroundColor: '#F5F5F5' },
-  locationBar: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'white', padding: 12, borderRadius: 10, marginBottom: 10 },
-  locationText: { flex: 1, marginLeft: 8, fontSize: 16, fontWeight: '600' },
-  searchBox: { flexDirection: 'row', marginBottom: 15 },
-  input: { flex: 1, backgroundColor: 'white', padding: 12, borderRadius: 10 },
-  searchBtn: { backgroundColor: '#4CAF50', padding: 12, borderRadius: 10, marginLeft: 8, justifyContent: 'center' },
-  title: { fontSize: 22, fontWeight: 'bold', marginBottom: 10, color: '#2E7D32' },
-  mainCard: { backgroundColor: 'white', padding: 20, borderRadius: 16, elevation: 3, marginBottom: 15 },
-  temp: { fontSize: 48, fontWeight: 'bold', color: '#2E7D32' },
-  desc: { fontSize: 16, marginTop: 4 },
-  subtitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 8 },
-  dayRow: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: 'white', padding: 14, borderRadius: 10, marginBottom: 6 }
+  container: { flex: 1, backgroundColor: '#E3F2FD' },
+  header: { backgroundColor: '#2196F3', padding: 15, paddingTop: 50, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  headerTitle: { fontSize: 18, fontWeight: 'bold', color: 'white', fontStyle: 'italic' },
+  fetchCard: { backgroundColor: 'white', margin: 20, padding: 30, borderRadius: 20, alignItems: 'center', elevation: 3 },
+  fetchTitle: { fontSize: 18, fontWeight: 'bold', marginTop: 15 },
+  fetchDesc: { fontSize: 12, color: 'gray', textAlign: 'center', marginTop: 8, marginBottom: 20 },
+  fetchBtn: { backgroundColor: '#2196F3', width: '100%', padding: 15, borderRadius: 12, alignItems: 'center' },
+  fetchBtnText: { color: 'white', fontSize: 16, fontWeight: 'bold', fontStyle: 'italic' },
+  errorText: { color: 'red', textAlign: 'center', marginTop: 20 },
+  currentCard: { backgroundColor: '#2196F3', margin: 15, padding: 20, borderRadius: 20 },
+  locationText: { color: 'white', fontSize: 14 },
+  tempText: { fontSize: 48, fontWeight: 'bold', color: 'white', marginTop: 10 },
+  conditionText: { fontSize: 16, color: 'white', fontStyle: 'italic' },
+  statsRow: { flexDirection: 'row', justifyContent: 'space-around', backgroundColor: 'rgba(0,0,0,0.2)', padding: 12, borderRadius: 12, marginTop: 15 },
+  statItem: { alignItems: 'center' },
+  statValue: { color: 'white', fontWeight: 'bold', marginTop: 4 },
+  sectionTitle: { fontSize: 16, fontWeight: 'bold', marginLeft: 15, marginTop: 10, marginBottom: 10 },
+  hourCard: { backgroundColor: 'white', padding: 12, borderRadius: 12, marginRight: 10, alignItems: 'center', width: 70, elevation: 2 },
+  hourText: { fontSize: 12, color: 'gray' },
+  hourTemp: { fontSize: 16, fontWeight: 'bold', marginTop: 5 },
+  dailyCard: { backgroundColor: 'white', margin: 15, padding: 15, borderRadius: 15, elevation: 2 },
+  dayRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12, borderBottomWidth: 1, borderColor: '#eee' },
+  dayName: { fontSize: 15, fontWeight: '600' },
+  rainText: { color: '#2196F3', fontWeight: 'bold' },
+  dayTemp: { fontSize: 15, fontWeight: 'bold' },
+  bottomNav: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 70, backgroundColor: 'white', flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', borderTopLeftRadius: 20, borderTopRightRadius: 20, elevation: 10 },
+  navItem: { alignItems: 'center' },
+  navText: { fontSize: 12, marginTop: 4 },
+  aiBtn: { width: 65, height: 65, borderRadius: 32, backgroundColor: '#4CAF50', justifyContent: 'center', alignItems: 'center', marginTop: -20, elevation: 8 }
 });
