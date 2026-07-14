@@ -13,7 +13,7 @@
     "android": {
       "package": "com.karingunikhil.kisanapp",
       "newArchEnabled": false,
-      "jsEngine": "jsc"
+      "jsEngine": "hermes"
     },
     "web": {
       "favicon": "./assets/favicon.png"
