@@ -19,7 +19,9 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-linear-gradient"
+      "expo-router",
+      "expo-linear-gradient",
+      "expo-location"
     ],
     "owner": "nikhilkumarkaringu929s-team",
     "extra": {
