@@ -1,50 +1,121 @@
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
-export default function HomeScreen() {
+const languages = [
+  { code: 'en', name: 'English' },
+  { code: 'te', name: 'Telugu (తెలుగు)' },
+  { code: 'ta', name: 'Tamil (தமிழ்)' },
+  { code: 'hi', name: 'Hindi (हिंदी)' },
+  { code: 'kn', name: 'Kannada (ಕನ್ನಡ)' },
+];
+
+export default function LanguageScreen() {
   const router = useRouter();
-  
-  const features = [
-    { id: 1, title: 'Weather Forecast', icon: 'cloudy', color: '#4CAF50', route: '/weather' },
-    { id: 2, title: 'Fertilizer Calculator', icon: 'flask', color: '#8BC34A', route: '/fertilizer' },
-    { id: 3, title: 'Pest & Disease Control', icon: 'bug', color: '#FF9800', route: '/pest' },
-    { id: 4, title: 'Crop Information', icon: 'leaf', color: '#4CAF50', route: '/crop' },
-    { id: 5, title: 'Smart Farming Tips', icon: 'bulb', color: '#FFC107', route: '/tips' },
-    { id: 6, title: 'Govt Schemes', icon: 'document-text', color: '#2196F3', route: '/schemes' },
-  ];
+  const [checking, setChecking] = useState(true);
+
+  // App open ayyaka already language select chesinda check cheyadam
+  useEffect(() => {
+    checkLanguage();
+  }, []);
+
+  const checkLanguage = async () => {
+    const savedLang = await AsyncStorage.getItem('appLanguage');
+    if (savedLang) {
+      router.replace('/home'); // Already select cheste direct home ki
+    } else {
+      setChecking(false);
+    }
+  }
+
+  const selectLanguage = async (langCode: string) => {
+    await AsyncStorage.setItem('appLanguage', langCode);
+    router.replace('/home'); // Select chesaka home ki
+  }
+
+  if (checking) return null;
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>🌾 KISAN - Smart Farmer</Text>
-        <Text style={styles.headerSub}>Your Farming Assistant</Text>
+      {/* LOGO */}
+      <View style={styles.logoCircle}>
+        <Ionicons name="leaf" size={50} color="white" />
       </View>
+
+      <Text style={styles.title}>KISAN</Text>
+      <Text style={styles.subtitle}>The Smart Farming Assistant</Text>
       
-      <ScrollView contentContainerStyle={styles.grid}>
-        {features.map((item) => (
-          <TouchableOpacity key={item.id} style={[styles.card, {borderLeftColor: item.color}]} onPress={() => router.push(item.route)}>
-            <Ionicons name={item.icon} size={40} color={item.color} />
-            <Text style={styles.cardTitle}>{item.title}</Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-      
-      <View style={styles.bottomNav}>
-        <TouchableOpacity><Ionicons name="home" size={28} color="#4CAF50" /><Text>Home</Text></TouchableOpacity>
-        <TouchableOpacity><Ionicons name="person" size={28} color="gray" /><Text>Profile</Text></TouchableOpacity>
-      </View>
+      <Text style={styles.selectText}>Please select your language</Text>
+      <Text style={styles.selectTextTel}>దయచేసి మీ భాషను ఎంచుకోండి</Text>
+
+      {/* LANGUAGE BUTTONS */}
+      {languages.map((lang) => (
+        <TouchableOpacity 
+          key={lang.code} 
+          style={styles.langBtn} 
+          onPress={() => selectLanguage(lang.code)}
+        >
+          <Text style={styles.langText}>{lang.name}</Text>
+        </TouchableOpacity>
+      ))}
+
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F5F5' },
-  header: { backgroundColor: '#2E7D32', padding: 20, paddingTop: 50 },
-  headerTitle: { color: 'white', fontSize: 22, fontWeight: 'bold' },
-  headerSub: { color: 'white', fontSize: 14, opacity: 0.8 },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', padding: 10, justifyContent: 'space-between' },
-  card: { width: '48%', backgroundColor: 'white', padding: 15, borderRadius: 12, marginBottom: 15, borderLeftWidth: 4, elevation: 3 },
-  cardTitle: { fontSize: 14, fontWeight: '600', marginTop: 8 },
-  bottomNav: { flexDirection: 'row', justifyContent: 'space-around', padding: 15, backgroundColor: 'white', borderTopWidth: 1, borderColor: '#ddd' }
+  container: { 
+    flex: 1, 
+    backgroundColor: '#E8F5E9', 
+    alignItems: 'center', 
+    paddingTop: 80, 
+    paddingHorizontal: 20 
+  },
+  logoCircle: { 
+    width: 80, 
+    height: 80, 
+    borderRadius: 40, 
+    backgroundColor: '#4CAF50', 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    marginBottom: 15,
+    elevation: 5
+  },
+  title: { 
+    fontSize: 32, 
+    fontWeight: 'bold', 
+    color: '#1B5E20' 
+  },
+  subtitle: { 
+    fontSize: 16, 
+    color: '#2E7D32', 
+    marginBottom: 30 
+  },
+  selectText: { 
+    fontSize: 14, 
+    color: '#555', 
+    marginBottom: 5 
+  },
+  selectTextTel: { 
+    fontSize: 14, 
+    color: '#555', 
+    marginBottom: 25 
+  },
+  langBtn: { 
+    width: '100%', 
+    backgroundColor: 'white', 
+    padding: 16, 
+    borderRadius: 12, 
+    borderWidth: 2, 
+    borderColor: '#4CAF50', 
+    marginBottom: 12, 
+    alignItems: 'center' 
+  },
+  langText: { 
+    fontSize: 16, 
+    fontWeight: '600', 
+    color: '#2E7D32' 
+  }
 });
