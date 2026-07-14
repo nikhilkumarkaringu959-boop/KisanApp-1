@@ -1,5 +1,7 @@
 import 'react-native-reanimated';
-import { View, Text } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Image } from 'react-native';
+import { useRouter } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -10,7 +12,7 @@ export default function HomeScreen() {
 
   const gridItems = [
     { id: 1, title: 'Crop\nInformation', icon: 'clipboard-list', bg: '#FFEFD5', iconBg: '#FFB347', route: '/crop' },
-    { id: 2, title: 'Weather\nFerecast', icon: 'weather-sunny', bg: '#E3F2FD', iconBg: '#64B5F6', route: '/weather' },
+    { id: 2, title: 'Weather\nForecast', icon: 'weather-sunny', bg: '#E3F2FD', iconBg: '#64B5F6', route: '/weather' }, // Ferecast -> Forecast
     { id: 3, title: 'Fertilizer\nCalculator', icon: 'cup', bg: '#E8F5E9', iconBg: '#81C784', route: '/fertilizer' },
     { id: 4, title: 'Smart Pest\nControl', icon: 'bug', bg: '#FFEBEE', iconBg: '#E57373', route: '/pest' },
     { id: 5, title: 'Smart Farming\nTips', icon: 'lightbulb', bg: '#FFFDE7', iconBg: '#FFD54F', route: '/smarttips' },
