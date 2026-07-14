@@ -1,5 +1,4 @@
 import 'react-native-reanimated';
-import React from 'react';
 import { View, Text } from 'react-native';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Image } from 'react-native';
 import { useRouter } from 'expo-router';
