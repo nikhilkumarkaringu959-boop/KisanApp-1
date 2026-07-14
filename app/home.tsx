@@ -1,6 +1,6 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Image } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Ionicons, MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const { width } = Dimensions.get('window');
@@ -9,22 +9,23 @@ export default function HomeScreen() {
   const router = useRouter();
 
   const gridItems = [
-    { id: 1, title: 'Crop\nInformation', icon: 'clipboard-text', bg: '#FDE4CF', iconBg: '#F4A261', route: '/crop' },
-    { id: 2, title: 'Weather\nFerecast', icon: 'weather-sunny', bg: '#DDE9FF', iconBg: '#64B5F6', route: '/weather' },
-    { id: 3, title: 'Fertilizer\nCalculator', icon: 'cup-water', bg: '#D8F3DC', iconBg: '#66BB6A', route: '/fertilizer' },
-    { id: 4, title: 'Smart Pest\nControl', icon: 'bug', bg: '#FFD6E8', iconBg: '#F06292', route: '/pest' },
-    { id: 5, title: 'Smart Farming\nTips', icon: 'lightbulb', bg: '#FFF3BF', iconBg: '#FFCA28', route: '/smarttips' },
-    { id: 6, title: 'Govt.\nSchemes', icon: 'bank', bg: '#E8D5FF', iconBg: '#AB47BC', route: '/schemes' },
+    { id: 1, title: 'Crop\nInformation', icon: 'clipboard-list', bg: '#FFEFD5', iconBg: '#FFB347', route: '/crop' },
+    { id: 2, title: 'Weather\nFerecast', icon: 'weather-sunny', bg: '#E3F2FD', iconBg: '#64B5F6', route: '/weather' },
+    { id: 3, title: 'Fertilizer\nCalculator', icon: 'cup', bg: '#E8F5E9', iconBg: '#81C784', route: '/fertilizer' },
+    { id: 4, title: 'Smart Pest\nControl', icon: 'bug', bg: '#FFEBEE', iconBg: '#E57373', route: '/pest' },
+    { id: 5, title: 'Smart Farming\nTips', icon: 'lightbulb', bg: '#FFFDE7', iconBg: '#FFD54F', route: '/smarttips' },
+    { id: 6, title: 'Govt.\nSchemes', icon: 'bank', bg: '#F3E5F5', iconBg: '#BA68C8', route: '/schemes' },
   ];
 
   return (
-    <LinearGradient colors={['#3A7D44', '#1E4D2B']} style={styles.container}>
+    <LinearGradient colors={['#2E7D32', '#1B5E20']} style={styles.container}>
       
-      {/* LEAVES - EXACT POSITION */}
-      <View style={styles.leafWrap}>
-        <Text style={styles.leafA}>🌿</Text>
-        <Text style={styles.leafB}>🍃</Text>
-      </View>
+      {/* EXACT LEAVES TOP LEFT */}
+      <Image 
+        source={{uri: 'https://i.imgur.com/8QkYgYp.png'}} 
+        style={styles.leafImage} 
+        resizeMode="contain"
+      />
 
       {/* HEADER */}
       <View style={styles.header}>
@@ -33,24 +34,25 @@ export default function HomeScreen() {
           <Text style={styles.subTitle}>THE SMART FARMING ASSISTANT</Text>
         </View>
         <TouchableOpacity>
-          <MaterialIcons name="format-list-bulleted" size={28} color="white" />
+          <MaterialCommunityIcons name="format-list-bulleted" size={26} color="white" />
         </TouchableOpacity>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {/* BANNER - EXACT ORANGE CARD */}
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{paddingBottom: 90}}>
+        
+        {/* EXACT BANNER */}
         <TouchableOpacity style={styles.banner} onPress={() => router.push('/market')}>
           <View style={{flex: 1}}>
             <Text style={styles.bannerTitle}>Market Prices</Text>
             <Text style={styles.bannerDesc}>Check latest grain rates{'\n'}to go cont here.</Text>
           </View>
-          <View style={styles.bannerIcons}>
-            <MaterialCommunityIcons name="cart" size={35} color="#A1887F" />
-            <MaterialCommunityIcons name="tag-outline" size={35} color="#A1887F" />
+          <View style={styles.bannerRight}>
+            <MaterialCommunityIcons name="cart" size={30} color="#8D6E63" />
+            <MaterialCommunityIcons name="tag" size={30} color="#8D6E63" style={{marginTop: -5}} />
           </View>
         </TouchableOpacity>
 
-        {/* GRID - 3 COLUMNS EXACT */}
+        {/* EXACT 3x2 GRID */}
         <View style={styles.gridContainer}>
           {gridItems.map((item) => (
             <TouchableOpacity 
@@ -66,27 +68,49 @@ export default function HomeScreen() {
           ))}
         </View>
       </ScrollView>
+
+      {/* EXACT BOTTOM NAV */}
+      <View style={styles.bottomNav}>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/home')}>
+          <Ionicons name="home" size={22} color="#2E7D32" />
+          <Text style={[styles.navText, {color: '#2E7D32'}]}>Home</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.aiBtn} onPress={() => alert('KISAN AI Coming Soon')}>
+          <MaterialCommunityIcons name="sprout" size={28} color="white" />
+          <Text style={styles.aiText}>KISAN AI</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/profile')}>
+          <Ionicons name="person-outline" size={22} color="gray" />
+          <Text style={styles.navText}>Profile</Text>
+        </TouchableOpacity>
+      </View>
     </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  leafWrap: { position: 'absolute', top: 90, left: 5 },
-  leafA: { fontSize: 90, opacity: 0.25, transform: [{rotate: '-15deg'}] },
-  leafB: { fontSize: 70, opacity: 0.18, marginTop: -30, marginLeft: 40, transform: [{rotate: '25deg'}] },
+  leafImage: { position: 'absolute', top: 80, left: 10, width: 120, height: 120, opacity: 0.9 },
   
   header: { paddingHorizontal: 20, paddingTop: 50, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  logo: { fontSize: 30, fontWeight: 'bold', color: 'white', letterSpacing: 1 },
+  logo: { fontSize: 28, fontWeight: 'bold', color: 'white', letterSpacing: 1 },
   subTitle: { fontSize: 10, color: '#C8E6C9', marginTop: 2 },
 
-  banner: { backgroundColor: '#FDE4CF', marginHorizontal: 20, marginTop: 25, padding: 18, borderRadius: 18, flexDirection: 'row', alignItems: 'center' },
-  bannerTitle: { fontSize: 17, fontWeight: 'bold', color: '#5D4037' },
-  bannerDesc: { fontSize: 11, color: '#795548', marginTop: 4, lineHeight: 16 },
-  bannerIcons: { alignItems: 'center' },
+  banner: { backgroundColor: '#FFEFD5', marginHorizontal: 20, marginTop: 20, padding: 16, borderRadius: 20, flexDirection: 'row', alignItems: 'center' },
+  bannerTitle: { fontSize: 16, fontWeight: 'bold', color: '#4E342E' },
+  bannerDesc: { fontSize: 11, color: '#6D4C41', marginTop: 4 },
+  bannerRight: { alignItems: 'center', marginLeft: 10 },
 
-  gridContainer: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', paddingHorizontal: 18, paddingTop: 10 },
-  gridCard: { width: '31.5%', paddingVertical: 14, paddingHorizontal: 5, borderRadius: 16, marginBottom: 14, alignItems: 'center', elevation: 2 },
-  iconCircle: { width: 42, height: 42, borderRadius: 21, justifyContent: 'center', alignItems: 'center', marginBottom: 8 },
-  gridText: { fontSize: 10.5, fontWeight: '700', color: '#2E2E2E', textAlign: 'center', lineHeight: 14 },
+  gridContainer: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', paddingHorizontal: 18, paddingTop: 15 },
+  gridCard: { width: '31%', paddingVertical: 16, borderRadius: 18, marginBottom: 14, alignItems: 'center', elevation: 3 },
+  iconCircle: { width: 45, height: 45, borderRadius: 22.5, justifyContent: 'center', alignItems: 'center', marginBottom: 8 },
+  gridText: { fontSize: 11, fontWeight: '700', color: '#2E2E2E', textAlign: 'center', lineHeight: 14 },
+
+  bottomNav: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 75, backgroundColor: '#E8F5E9', flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', borderTopLeftRadius: 25, borderTopRightRadius: 25 },
+  navItem: { alignItems: 'center', flex: 1 },
+  navText: { fontSize: 11, marginTop: 3, color: 'gray', fontWeight: '500' },
+  aiBtn: { width: 70, height: 70, borderRadius: 35, backgroundColor: '#2E7D32', justifyContent: 'center', alignItems: 'center', marginBottom: 25, borderWidth: 4, borderColor: '#E8F5E9' },
+  aiText: { color: 'white', fontSize: 9, fontWeight: 'bold', marginTop: 2 }
 });
