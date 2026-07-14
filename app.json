@@ -18,6 +18,9 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "plugins": [
+      "expo-linear-gradient"
+    ],
     "owner": "nikhilkumarkaringu929s-team",
     "extra": {
       "eas": {
