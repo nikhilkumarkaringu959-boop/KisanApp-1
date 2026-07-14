@@ -11,7 +11,9 @@
       "bundleIdentifier": "com.karingunikhil.kisanapp"
     },
     "android": {
-      "package": "com.karingunikhil.kisanapp"
+      "package": "com.karingunikhil.kisanapp",
+      "newArchEnabled": false,
+      "jsEngine": "jsc"
     },
     "web": {
       "favicon": "./assets/favicon.png"
