@@ -43,13 +43,17 @@ export default function HomeScreen() {
   ];
 
   const gridItems = [
-    { id: 1, title: 'Crop\nInformation', icon: 'assignment', bg: '#FFE0B2', iconBg: '#FFCC80' },
-    { id: 2, title: 'Weather\nForecast', icon: 'wb-sunny', bg: '#D1E7FF', iconBg: '#90CAF9' },
-    { id: 3, title: 'Fertilizer\nCalculator', icon: 'water-drop', bg: '#D6F5E3', iconBg: '#81C784' },
-    { id: 4, title: 'Smart Pest\nControl', icon: 'bug-report', bg: '#FFCDD2', iconBg: '#E57373' },
-    { id: 5, title: 'Smart Farming\nTips', icon: 'lightbulb', bg: '#FFF9C4', iconBg: '#FFD54F' },
-    { id: 6, title: 'Govt.\nSchemes', icon: 'account-balance', bg: '#E1BEE7', iconBg: '#BA68C8' },
-  ];
+  { id: 1, title: 'Crop\nInformation', icon: 'assignment', bg: '#FFE0B2', iconBg: '#FFCC80', route: '/crop' },
+  { id: 2, title: 'Weather\nForecast', icon: 'wb-sunny', bg: '#D1E7FF', iconBg: '#90CAF9', route: '/weather' },
+  { id: 3, title: 'Fertilizer\nCalculator', icon: 'water-drop', bg: '#D6F5E3', iconBg: '#81C784', route: '/fertilizer' },
+  { id: 4, title: 'Smart Pest\nControl', icon: 'bug-report', bg: '#FFCDD2', iconBg: '#E57373', route: '/pest' },
+  { id: 5, title: 'Smart Farming\nTips', icon: 'lightbulb', bg: '#FFF9C4', iconBg: '#FFD54F', route: '/smarttips' },
+  { id: 6, title: 'Govt.\nSchemes', icon: 'account-balance', bg: '#E1BEE7', iconBg: '#BA68C8', route: '/schemes' },
+];
+
+// Then in map:
+<TouchableOpacity key={item.id} style={[styles.gridCard, {backgroundColor: item.bg}]} onPress={() => router.push(item.route)}>
+  
 
   return (
     <View style={styles.container}>
