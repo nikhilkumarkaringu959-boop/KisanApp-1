@@ -1,19 +1,27 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, FlatList, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, FlatList, Dimensions, Modal } from 'react-native';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
 
 export default function HomeScreen() {
   const router = useRouter();
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [profileData, setProfileData] = useState<any>(null);
 
-  // Top Slider Data
+  // Profile data load cheyadam
+  useEffect(() => {
+    AsyncStorage.getItem('farmerProfile').then(data => {
+      if(data) setProfileData(JSON.parse(data));
+    });
+  }, []);
+
   const sliderData = [
     { id: '1', title: 'Market Prices', desc: 'Check latest grain rates to go cont here.', icon: 'cart' },
-    { id: '2', title: 'Crop Advisory', desc: 'Get expert advice for your crops.', icon: 'leaf' },
   ];
 
-  // 6 Main Cards Data
   const menuItems = [
     { id: '1', title: 'Crop\nInformation', icon: 'clipboard-text', color: '#FFE8D6', iconBg: '#FFB07C', route: '/crop' },
     { id: '2', title: 'Weather\nForecast', icon: 'weather-sunny', color: '#D6E8FF', iconBg: '#7CB4FF', route: '/weather' },
@@ -23,24 +31,33 @@ export default function HomeScreen() {
     { id: '6', title: 'Govt.\nSchemes', icon: 'bank', color: '#E8D6FF', iconBg: '#A57CFF', route: '/schemes' },
   ];
 
+  const menuOptions = [
+    { id: '1', title: 'My Profile', icon: 'person', action: () => { setMenuVisible(false); router.push('/profile'); } },
+    { id: '2', title: 'Change Language', icon: 'language', action: () => { setMenuVisible(false); AsyncStorage.removeItem('appLanguage'); router.replace('/'); } },
+    { id: '3', title: 'KISAN AI', icon: 'leaf', action: () => { setMenuVisible(false); router.push('/chat'); } },
+    { id: '4', title: 'Notifications', icon: 'notifications', action: () => { setMenuVisible(false); alert('Weather Alert: Rain expected tomorrow\nNew Scheme: PM Kisan 16th installment') } },
+    { id: '5', title: 'My Farm Details', icon: 'earth', action: () => { setMenuVisible(false); alert(`Soil: ${profileData?.soil}\nLand: ${profileData?.land} Acres\nState: ${profileData?.state}`) } },
+    { id: '6', title: 'Share App', icon: 'share', action: () => { setMenuVisible(false); alert('Share link copied!') } },
+    { id: '7', title: 'About Us', icon: 'information-circle', action: () => { setMenuVisible(false); alert('KISAN App\nVersion: 2.8.0\nThe Smart Farming Assistant') } },
+  ];
+
   return (
     <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         
-        {/* HEADER */}
+        {/* HEADER WITH MENU */}
         <View style={styles.header}>
           <View>
             <Text style={styles.title}>KISAN</Text>
             <Text style={styles.subtitle}>THE SMART FARMING ASSISTANT</Text>
           </View>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => setMenuVisible(true)}>
             <Ionicons name="menu" size={28} color="white" />
           </TouchableOpacity>
-          {/* Background Leaves */}
           <Image source={{uri: 'https://cdn-icons-png.flaticon.com/512/628/628324.png'}} style={styles.leafImg} />
         </View>
 
-        {/* TOP SLIDER */}
+        {/* SLIDER + GRID same as before */}
         <FlatList
           data={sliderData}
           horizontal
@@ -62,7 +79,6 @@ export default function HomeScreen() {
           )}
         />
 
-        {/* 6 CARDS GRID */}
         <View style={styles.grid}>
           {menuItems.map(item => (
             <TouchableOpacity key={item.id} style={[styles.card, {backgroundColor: item.color}]} onPress={() => router.push(item.route as any)}>
@@ -73,7 +89,6 @@ export default function HomeScreen() {
             </TouchableOpacity>
           ))}
         </View>
-        
       </ScrollView>
 
       {/* BOTTOM NAV */}
@@ -82,17 +97,46 @@ export default function HomeScreen() {
           <Ionicons name="home" size={24} color="#4CAF50" />
           <Text style={[styles.navText, {color: '#4CAF50'}]}>Home</Text>
         </TouchableOpacity>
-        
         <TouchableOpacity style={styles.aiBtn} onPress={() => router.push('/chat')}>
           <Ionicons name="leaf" size={28} color="white" />
           <Text style={styles.aiText}>KISAN AI</Text>
         </TouchableOpacity>
-
         <TouchableOpacity style={styles.navItem} onPress={() => router.push('/profile')}>
           <Ionicons name="person-outline" size={24} color="gray" />
           <Text style={styles.navText}>Profile</Text>
         </TouchableOpacity>
       </View>
+
+      {/* 3 DOTS MENU MODAL */}
+      <Modal visible={menuVisible} transparent animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={styles.menuCard}>
+            {/* App Icon + Name */}
+            <View style={styles.menuHeader}>
+              <View style={styles.menuLogo}>
+                <Ionicons name="leaf" size={30} color="white" />
+              </View>
+              <View>
+                <Text style={styles.menuAppName}>KISAN</Text>
+                <Text style={styles.menuAppSub}>The Smart Farming Assistant</Text>
+              </View>
+            </View>
+
+            {/* Menu Options */}
+            {menuOptions.map(item => (
+              <TouchableOpacity key={item.id} style={styles.menuItem} onPress={item.action}>
+                <Ionicons name={item.icon as any} size={22} color="#2E7D32" />
+                <Text style={styles.menuItemText}>{item.title}</Text>
+              </TouchableOpacity>
+            ))}
+
+            <TouchableOpacity style={styles.closeBtn} onPress={() => setMenuVisible(false)}>
+              <Text style={{color: '#D32F2F', fontWeight: 'bold'}}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
     </View>
   );
 }
@@ -103,75 +147,27 @@ const styles = StyleSheet.create({
   title: { fontSize: 28, fontWeight: 'bold', color: 'white' },
   subtitle: { fontSize: 12, color: '#A5D6A7' },
   leafImg: { position: 'absolute', width: 120, height: 120, left: 10, top: 80, opacity: 0.3, tintColor: '#A5D6A7' },
-  
-  sliderCard: { 
-    width: width - 40, 
-    backgroundColor: '#FFE0B2', 
-    borderRadius: 20, 
-    padding: 20, 
-    flexDirection: 'row', 
-    marginRight: 15,
-    marginTop: 20
-  },
+  sliderCard: { width: width - 40, backgroundColor: '#FFE0B2', borderRadius: 20, padding: 20, flexDirection: 'row', marginRight: 15, marginTop: 20 },
   sliderTitle: { fontSize: 18, fontWeight: 'bold', color: '#4E342E' },
   sliderDesc: { fontSize: 12, color: '#5D4037', marginTop: 5 },
-
-  grid: { 
-    flexDirection: 'row', 
-    flexWrap: 'wrap', 
-    justifyContent: 'space-between', 
-    padding: 20, 
-    paddingBottom: 100 
-  },
-  card: { 
-    width: '31%', 
-    aspectRatio: 0.9, 
-    borderRadius: 16, 
-    padding: 10, 
-    marginBottom: 15, 
-    alignItems: 'center', 
-    justifyContent: 'center' 
-  },
-  iconCircle: { 
-    width: 45, 
-    height: 45, 
-    borderRadius: 22, 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    marginBottom: 8 
-  },
-  cardText: { 
-    fontSize: 12, 
-    fontWeight: '600', 
-    textAlign: 'center', 
-    color: '#333' 
-  },
-
-  bottomNav: { 
-    position: 'absolute', 
-    bottom: 0, 
-    left: 0, 
-    right: 0, 
-    height: 70, 
-    backgroundColor: 'white', 
-    flexDirection: 'row', 
-    justifyContent: 'space-around', 
-    alignItems: 'center', 
-    borderTopLeftRadius: 20, 
-    borderTopRightRadius: 20, 
-    elevation: 10 
-  },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', padding: 20, paddingBottom: 100 },
+  card: { width: '31%', aspectRatio: 0.9, borderRadius: 16, padding: 10, marginBottom: 15, alignItems: 'center', justifyContent: 'center' },
+  iconCircle: { width: 45, height: 45, borderRadius: 22, justifyContent: 'center', alignItems: 'center', marginBottom: 8 },
+  cardText: { fontSize: 12, fontWeight: '600', textAlign: 'center', color: '#333' },
+  bottomNav: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 70, backgroundColor: 'white', flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', borderTopLeftRadius: 20, borderTopRightRadius: 20, elevation: 10 },
   navItem: { alignItems: 'center' },
   navText: { fontSize: 12, marginTop: 4 },
-  aiBtn: { 
-    width: 65, 
-    height: 65, 
-    borderRadius: 32, 
-    backgroundColor: '#4CAF50', 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    marginTop: -20, 
-    elevation: 8 
-  },
-  aiText: { color: 'white', fontSize: 10, fontWeight: 'bold' }
+  aiBtn: { width: 65, height: 65, borderRadius: 32, backgroundColor: '#4CAF50', justifyContent: 'center', alignItems: 'center', marginTop: -20, elevation: 8 },
+  aiText: { color: 'white', fontSize: 10, fontWeight: 'bold' },
+
+  // MENU STYLES
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+  menuCard: { backgroundColor: 'white', borderTopLeftRadius: 25, borderTopRightRadius: 25, padding: 20, paddingBottom: 40 },
+  menuHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 20, borderBottomWidth: 1, borderColor: '#eee', paddingBottom: 15 },
+  menuLogo: { width: 50, height: 50, borderRadius: 25, backgroundColor: '#4CAF50', justifyContent: 'center', alignItems: 'center', marginRight: 12 },
+  menuAppName: { fontSize: 20, fontWeight: 'bold', color: '#1B5E20' },
+  menuAppSub: { fontSize: 12, color: 'gray' },
+  menuItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 14 },
+  menuItemText: { fontSize: 16, marginLeft: 15, color: '#333' },
+  closeBtn: { alignItems: 'center', marginTop: 10, padding: 10 }
 });
