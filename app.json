@@ -3,39 +3,34 @@
     "name": "KISAN - Smart Farming",
     "slug": "kisanapp",
     "version": "1.0.0",
-    "sdkVersion": "51.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "scheme": "kisan",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
     "assetBundlePatterns": [
       "**/*"
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.karingunikhil.kisan",
-      "buildNumber": "1"
+      "bundleIdentifier": "com.karingunikhil.kisanapp"
     },
     "android": {
-      "package": "com.karingunikhil.kisan",
-      "versionCode": 1,
-      "backgroundColor": "#1B5E20"
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.karingunikhil.kisanapp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": [
-      "expo-router",
-      [
-        "expo-location",
-        {
-          "locationAlwaysAndWhenInUsePermission": "KISAN app needs location for weather and crop suggestions"
-        }
-      ]
-    ],
     "extra": {
       "eas": {
-        "projectId": "ec826a31-8491-436e-9951-da6ed6345e02"
+        "projectId": "2a09e627-04f2-4bf1-a145-c86ae9318d11"
       }
     }
   }
