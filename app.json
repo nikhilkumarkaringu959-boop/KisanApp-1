@@ -22,7 +22,8 @@
     "extra": {
       "eas": {
         "projectId": "2a09e627-04f2-4bf1-a145-c86ae9318d11"
-      }
+      },
+      "GEMINI_API_KEY": "AQ.Ab8RN6K5123hCBEdWoc-6e4xcdxWMXlprZTosAU32fPMGmkPOg"
     }
   }
 }
