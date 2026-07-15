@@ -5,7 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useState } from 'react';
 import * as Location from 'expo-location';
 
-const GEMINI_API_KEY = "AQ.Ab8RN6LeixmRq8HhjOFaiqZFMHFMP43Ir0sO4mcbwfTR2oB41Q";
+const GEMINI_API_KEY = "AQ.Ab8RN6K5123hCBEdWoc-6e4xcdxWMXlprZTosAU32fPMGmkPOg";
 
 export default function MarketScreen() {
   const router = useRouter();
