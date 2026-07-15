@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 
-const GEMINI_API_KEY = "AQ.Ab8RN6LeixmRq8HhjOFaiqZFMHFMP43Ir0sO4mcbwfTR2oB41Q"; // Nee key
+const GEMINI_API_KEY = "AQ.Ab8RN6K5123hCBEdWoc-6e4xcdxWMXlprZTosAU32fPMGmkPOg"; // Nee key
 
 export default function PestScreen() {
   const router = useRouter();
