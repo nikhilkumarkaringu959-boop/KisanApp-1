@@ -10,8 +10,7 @@
       "**/*"
     ],
     "plugins": [
-      "expo-location",
-      "expo-linear-gradient"
+      "expo-location"
     ],
     "ios": {
       "supportsTablet": true,
