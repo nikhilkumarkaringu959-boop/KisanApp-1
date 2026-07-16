@@ -12,8 +12,8 @@
       "android": {
         "buildType": "apk"
       },
-      "ios": {
-        "buildType": "simulator"
+      "env": {
+        "EXPO_PUBLIC_GEMINI_API_KEY": "AIzaSy_neeku_key_akkada_pettu"
       },
       "distribution": "internal"
     },
