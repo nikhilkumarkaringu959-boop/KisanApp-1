@@ -1,11 +1,11 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import i18n from '../i18n'; // i18n import
 
 export default function CropScreen() {
   const router = useRouter();
 
-  // Nuvvu ichina data anni akkada pettanu. Okkati kuda miss ledu mowa
   const cropData = {
     Kharif: {
       "🌾 CEREALS & MILLETS": ["Rice", "Paddy", "Corn", "Jowar", "Bajra", "Ragi"],
@@ -29,17 +29,23 @@ export default function CropScreen() {
     }
   };
 
+  const seasonNames: any = {
+    Kharif: i18n.t('kharifCrops'),
+    Rabi: i18n.t('rabiCrops'),
+    Zaid: i18n.t('zaidCrops'),
+  }
+
   const renderSeason = (seasonName: string, categories: any) => (
     <View style={styles.seasonCard} key={seasonName}>
       <View style={styles.seasonHeader}>
-        <Text style={styles.seasonTitle}>{seasonName} Crops</Text>
+        <Text style={styles.seasonTitle}>{seasonNames[seasonName]}</Text>
       </View>
       {Object.keys(categories).map(category => (
         <View key={category} style={styles.categoryBlock}>
           <Text style={styles.categoryTitle}>{category}</Text>
           <View style={styles.chipContainer}>
             {categories[category].map((crop: string) => (
-              <TouchableOpacity key={crop} style={styles.cropChip} onPress={() => alert(`${crop} details coming soon`)}>
+              <TouchableOpacity key={crop} style={styles.cropChip} onPress={() => Alert.alert(crop, `${crop} ${i18n.t('comingSoon')}`)}>
                 <Text style={styles.cropChipText}>{crop}</Text>
               </TouchableOpacity>
             ))}
@@ -59,8 +65,8 @@ export default function CropScreen() {
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
           <Ionicons name="leaf" size={24} color="white" />
           <View style={{marginLeft: 10}}>
-            <Text style={styles.headerTitle}>KISAN</Text>
-            <Text style={styles.headerSub}>THE SMART FARMING ASSISTANT</Text>
+            <Text style={styles.headerTitle}>{i18n.t('appName')}</Text>
+            <Text style={styles.headerSub}>{i18n.t('subTitle')}</Text>
           </View>
         </View>
         <Ionicons name="ellipsis-vertical" size={24} color="white" />
@@ -71,9 +77,9 @@ export default function CropScreen() {
         <View style={styles.infoCard}>
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <Ionicons name="book" size={20} color="#D84315" />
-            <Text style={styles.infoTitle}> Crop Information</Text>
+            <Text style={styles.infoTitle}> {i18n.t('cropInfo')}</Text>
           </View>
-          <Text style={styles.infoDesc}>Complete seasonal guide for Indian farming.</Text>
+          <Text style={styles.infoDesc}>{i18n.t('cropInfoDesc')}</Text>
         </View>
 
         {/* 3 SEASONS */}
@@ -87,15 +93,15 @@ export default function CropScreen() {
       <View style={styles.bottomNav}>
         <TouchableOpacity style={styles.navItem} onPress={() => router.push('/home')}>
           <Text>🏠</Text>
-          <Text style={styles.navText}>Home</Text>
+          <Text style={styles.navText}>{i18n.t('home')}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.aiBtn} onPress={() => router.push('/chat')}>
           <Ionicons name="leaf" size={28} color="white" />
-          <Text style={styles.aiText}>KISAN AI</Text>
+          <Text style={styles.aiText}>{i18n.t('appName')} AI</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.navItem} onPress={() => router.push('/profile')}>
           <Text>👤</Text>
-          <Text style={styles.navText}>Profile</Text>
+          <Text style={styles.navText}>{i18n.t('profile')}</Text>
         </TouchableOpacity>
       </View>
     </View>
