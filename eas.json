@@ -1,21 +1,20 @@
 {
   "cli": {
-    "version": ">= 5.0.0",
-    "appVersionSource": "remote"
+    "version": ">= 16.0.0",
+    "requireCommit": false
   },
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      }
     },
     "preview": {
       "android": {
         "buildType": "apk"
-      },
-      "env": {
-        "EXPO_PUBLIC_GEMINI_API_KEY": "AIzaSy_neeku_key_akkada_pettu"
-      },
-      "distribution": "internal"
+      }
     },
     "production": {
       "android": {
