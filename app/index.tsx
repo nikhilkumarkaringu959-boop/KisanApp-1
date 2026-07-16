@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import i18n, { setLanguage, loadLanguage } from '../i18n'; // i18n import
+import i18n, { setLanguage, loadLanguage } from './i18n'; // i18n import
 
 const languages = [
   { code: 'en', name: 'English' },
@@ -31,12 +31,6 @@ export default function OnboardingScreen() {
 
   const states = ['Telangana', 'Andhra Pradesh', 'Karnataka', 'Tamil Nadu'];
   const soilTypes = ['Black Soil', 'Red Soil', 'Alluvial Soil', 'Laterite Soil'];
-
-  const genderOptions = [
-    { key: 'Male', label: i18n.t('male') },
-    { key: 'Female', label: i18n.t('female') },
-    { key: 'Other', label: i18n.t('other') },
-  ];
 
   // App open ayyaka
   useEffect(() => {
@@ -101,6 +95,12 @@ export default function OnboardingScreen() {
 
   // PROFILE SCREEN
   if (step === 'profile') {
+    const genderOptions = [
+      { key: 'Male', label: i18n.t('male') },
+      { key: 'Female', label: i18n.t('female') },
+      { key: 'Other', label: i18n.t('other') },
+    ];
+
     return (
       <ScrollView style={styles.profileContainer}>
         <View style={styles.header}>
