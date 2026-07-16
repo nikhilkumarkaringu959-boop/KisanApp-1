@@ -1,11 +1,11 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, ActivityIndicator, FlatList } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, ActivityIndicator, Alert } from 'react-native';
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system';
+import i18n from '../i18n'; // i18n import
 
-const GEMINI_API_KEY = "AQ.Ab8RN6K5123hCBEdWoc-6e4xcdxWMXlprZTosAU32fPMGmkPOg"; // Nee key
+const GEMINI_API_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY; // SECURE
 
 export default function PestScreen() {
   const router = useRouter();
@@ -14,10 +14,9 @@ export default function PestScreen() {
   const [result, setResult] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('chemical');
 
-  // CAMERA / GALLERY OPEN CHEYADAM
   const pickImage = async (fromCamera: boolean) => {
     let result = fromCamera
-     ? await ImagePicker.launchCameraAsync({ allowsEditing: true, quality: 0.8, base64: true })
+    ? await ImagePicker.launchCameraAsync({ allowsEditing: true, quality: 0.8, base64: true })
       : await ImagePicker.launchImageLibraryAsync({ allowsEditing: true, quality: 0.8, base64: true });
 
     if (!result.canceled) {
@@ -26,24 +25,58 @@ export default function PestScreen() {
     }
   };
 
-  // GEMINI VISION API KI CALL
   const analyzeImage = async (base64: string) => {
+    if(!GEMINI_API_KEY){
+      Alert.alert("Error", "API Key missing. EAS Secret lo set cheyi");
+      return;
+    }
+
     setLoading(true);
     setResult(null);
 
     const prompt = `
     You are an expert AI Plant Pathologist and Entomologist from India.
     Analyze this plant leaf image and identify the pest or disease.
-    Return ONLY a valid JSON object in Telugu language:
+    Return ONLY a valid JSON object in 5 languages: Telugu, Hindi, Tamil, Kannada, English.
     {
-      "identified_issue": "disease/pest name in Telugu",
-      "confidence_score": "85%",
-      "symptoms": ["symptom1", "symptom2", "symptom3"],
-      "solutions": {
-        "chemical_control": ["Tricyclazole 75% WP - 2g per liter water", "Hexaconazole 5% EC - 2ml per liter"],
-        "organic_control": ["Neem oil 5ml per liter spray", "3G Kashayam - Ginger, Garlic, Green Chilli"]
+      "identified_issue": {
+        "en": "Rice Blast",
+        "te": "వరి బ్లాస్ట్",
+        "hi": "धान ब्लास्ट",
+        "ta": "நெல் வெடிப்பு",
+        "kn": "ಭತ್ತದ ಬ್ಲಾಸ್ಟ್"
       },
-      "prevention_tips": ["Crop rotation cheyadam", "Field lo nillu nillakunda choosukovadam"]
+      "confidence_score": "85%",
+      "symptoms": {
+        "en": ["Brown spots on leaves", "Lesions with gray center"],
+        "te": ["ఆకులపై గోధుమ రంగు మచ్చలు", "బూడిద రంగు మధ్యతో గాయాలు"],
+        "hi": ["पत्तियों पर भूरे धब्बे", "भूरे केंद्र वाले घाव"],
+        "ta": ["இலைகளில் பழுப்பு புள்ளிகள்", "சாம்பல் மையத்துடன் காயங்கள்"],
+        "kn": ["ಎಲೆಗಳ ಮೇಲೆ ಕಂದು ಚುಕ್ಕೆಗಳು", "ಬೂದು ಮಧ್ಯದೊಂದಿಗೆ ಗಾಯಗಳು"]
+      },
+      "solutions": {
+        "chemical_control": {
+          "en": ["Tricyclazole 75% WP - 2g per liter", "Hexaconazole 5% EC - 2ml per liter"],
+          "te": ["ట్రైసైక్లజోల్ 75% WP - లీటరుకు 2గ్రా", "హెక్సాకోనజోల్ 5% EC - లీటరుకు 2మి.లీ"],
+          "hi": ["ट्राइसाइक्लाज़ोल 75% WP - प्रति लीटर 2ग्रा", "हेक्साकोनाज़ोल 5% EC - प्रति लीटर 2मिली"],
+          "ta": ["ட்ரைசைக்ளசோல் 75% WP - லிட்டருக்கு 2கிராம்", "ஹெக்சாகோனசோல் 5% EC - லிட்டருக்கு 2மிலி"],
+          "kn": ["ಟ್ರೈಸೈಕ್ಲಜೋಲ್ 75% WP - ಲೀಟರ್‌ಗೆ 2ಗ್ರಾಂ", "ಹೆಕ್ಸಾಕೋನಜೋಲ್ 5% EC - ಲೀಟರ್‌ಗೆ 2ಮಿಲಿ"]
+        },
+        "organic_control": {
+          "en": ["Neem oil 5ml per liter spray", "3G Kashayam spray"],
+          "te": ["వేప నూనె లీటరుకు 5మి.లీ స్ప్రే", "3G కషాయం స్ప్రే"],
+          "hi": ["नीम का तेल प्रति लीटर 5मिली स्प्रे", "3G कषाय स्प्रे"],
+          "ta": ["வேப்ப எண்ணெய் லிட்டருக்கு 5மிலி தெளிப்பு", "3G கஷாயம் தெளிப்பு"],
+          "kn": ["ಬೇವಿನ ಎಣ್ಣೆ ಲೀಟರ್‌ಗೆ 5ಮಿಲಿ ಸ್ಪ್ರೇ", "3G ಕಷಾಯ ಸ್ಪ್ರೇ"]
+        }
+      },
+      "prevention_tips": {
+        "en": ["Crop rotation", "Avoid water stagnation"],
+        "te": ["పంట మార్పిడి చేయడం", "పొలంలో నీరు నిల్వ ఉండకుండా చూడడం"],
+        "hi": ["फसल चक्रण", "खेत में पानी जमा न होने दें"],
+        "ta": ["பயிர் சுழற்சி", "வயலில் தண்ணீர் தேங்காமல் பார்த்துக்கொள்ளவும்"],
+        "kn": ["ಬೆಳೆ ಸರದಿ", "ಗದ್ದೆಯಲ್ಲಿ ನೀರು ನಿಲ್ಲದಂತೆ ನೋಡಿಕೊಳ್ಳಿ"]
+      }
     }
     `;
 
@@ -66,35 +99,37 @@ export default function PestScreen() {
       const cleanJson = jsonText.replace(/```json/g, '').replace(/```/g, '');
       setResult(JSON.parse(cleanJson));
     } catch (err) {
-      alert('Analysis failed. Clear photo tho malli try chey.');
+      Alert.alert("Error", i18n.t('analysisFailed'));
       console.log(err);
     } finally {
       setLoading(false);
     }
   };
 
+  // Language batti data select cheyadam
+  const lang = i18n.locale as 'en' | 'te' | 'hi' | 'ta' | 'kn';
+  const getText = (obj: any) => obj?.[lang] || obj?.['en'];
+
   return (
     <View style={styles.container}>
-      {/* HEADER */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}><Ionicons name="arrow-back" size={24} color="white" /></TouchableOpacity>
-        <Text style={styles.headerTitle}>Pest & Disease Scan</Text>
+        <Text style={styles.headerTitle}>{i18n.t('pestScan')}</Text>
         <View style={{width: 24}} />
       </View>
 
-      <ScrollView>
+      <ScrollView contentContainerStyle={{paddingBottom: 100}}>
         {!image && (
-          // INITIAL SCREEN - SCAN BUTTON
           <View style={styles.scanCard}>
             <Image source={{uri: 'https://cdn-icons-png.flaticon.com/512/2991/2991148.png'}} style={styles.cameraIcon} />
-            <Text style={styles.scanTitle}>Identify Pests Instantly</Text>
-            <Text style={styles.scanDesc}>Take a photo of infected leaf to get AI solutions</Text>
+            <Text style={styles.scanTitle}>{i18n.t('identifyPests')}</Text>
+            <Text style={styles.scanDesc}>{i18n.t('scanDesc')}</Text>
 
             <TouchableOpacity style={styles.scanBtn} onPress={() => pickImage(true)}>
-              <Text style={styles.scanBtnText}>Scan Crop / Upload Photo</Text>
+              <Text style={styles.scanBtnText}>{i18n.t('scanCrop')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.galleryBtn} onPress={() => pickImage(false)}>
-              <Text style={styles.galleryBtnText}>Gallery nunchi Select chey</Text>
+              <Text style={styles.galleryBtnText}>{i18n.t('selectGallery')}</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -102,61 +137,55 @@ export default function PestScreen() {
         {loading && (
           <View style={styles.loadingBox}>
             <ActivityIndicator size="large" color="#D32F2F" />
-            <Text style={styles.loadingText}>తెగులును గుర్తిస్తోంది...</Text>
+            <Text style={styles.loadingText}>{i18n.t('detecting')}</Text>
           </View>
         )}
 
         {result && image && (
-          // RESULTS DASHBOARD
           <View>
-            {/* IMAGE COMPARISON */}
             <View style={styles.imageRow}>
               <View style={styles.imgBox}>
-                <Text style={styles.imgLabel}>Your Photo</Text>
+                <Text style={styles.imgLabel}>{i18n.t('yourPhoto')}</Text>
                 <Image source={{uri: image}} style={styles.resultImage} />
               </View>
               <View style={styles.imgBox}>
-                <Text style={styles.imgLabel}>Reference</Text>
+                <Text style={styles.imgLabel}>{i18n.t('reference')}</Text>
                 <Image source={{uri: 'https://www.icar.org.in/sites/default/files/rice-blast-disease.jpg'}} style={styles.resultImage} />
               </View>
             </View>
 
-            {/* RESULT CARD */}
             <View style={styles.resultCard}>
-              <Text style={styles.issueName}>{result.identified_issue}</Text>
-              <Text style={styles.confidence}>Accuracy: {result.confidence_score}</Text>
+              <Text style={styles.issueName}>{getText(result.identified_issue)}</Text>
+              <Text style={styles.confidence}>{i18n.t('accuracy')}: {result.confidence_score}</Text>
 
-              <Text style={styles.sectionHeader}>లక్షణాలు / Symptoms</Text>
-              {result.symptoms.map((s: string, i: number) => <Text key={i} style={styles.bullet}>• {s}</Text>)}
+              <Text style={styles.sectionHeader}>{i18n.t('symptoms')}</Text>
+              {getText(result.symptoms)?.map((s: string, i: number) => <Text key={i} style={styles.bullet}>• {s}</Text>)}
 
-              {/* TABS */}
               <View style={styles.tabRow}>
                 <TouchableOpacity onPress={() => setActiveTab('chemical')} style={[styles.tab, activeTab==='chemical' && styles.activeTab]}>
-                  <Text style={activeTab==='chemical'? styles.activeTabText : styles.tabText}>రసాయన నివారణ</Text>
+                  <Text style={activeTab==='chemical'? styles.activeTabText : styles.tabText}>{i18n.t('chemical')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => setActiveTab('organic')} style={[styles.tab, activeTab==='organic' && styles.activeTab]}>
-                  <Text style={activeTab==='organic'? styles.activeTabText : styles.tabText}>సేంద్రీయ నివారణ</Text>
+                  <Text style={activeTab==='organic'? styles.activeTabText : styles.tabText}>{i18n.t('organic')}</Text>
                 </TouchableOpacity>
               </View>
 
-              {/* TAB CONTENT */}
               <View style={styles.solutionBox}>
-                {activeTab === 'chemical' && result.solutions.chemical_control.map((s: string, i: number) => <Text key={i} style={styles.solutionText}>🌿 {s}</Text>)}
-                {activeTab === 'organic' && result.solutions.organic_control.map((s: string, i: number) => <Text key={i} style={styles.solutionText}>🍃 {s}</Text>)}
+                {activeTab === 'chemical' && getText(result.solutions.chemical_control)?.map((s: string, i: number) => <Text key={i} style={styles.solutionText}>🌿 {s}</Text>)}
+                {activeTab === 'organic' && getText(result.solutions.organic_control)?.map((s: string, i: number) => <Text key={i} style={styles.solutionText}>🍃 {s}</Text>)}
               </View>
 
-              <Text style={styles.sectionHeader}>నివారణ చిట్కాలు / Prevention</Text>
-              {result.prevention_tips.map((p: string, i: number) => <Text key={i} style={styles.bullet}>✓ {p}</Text>)}
+              <Text style={styles.sectionHeader}>{i18n.t('prevention')}</Text>
+              {getText(result.prevention_tips)?.map((p: string, i: number) => <Text key={i} style={styles.bullet}>✓ {p}</Text>)}
             </View>
           </View>
         )}
       </ScrollView>
 
-      {/* BOTTOM NAV */}
       <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/home')}><Ionicons name="home-outline" size={24} color="gray" /><Text style={styles.navText}>Home</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/(tabs)')}><Ionicons name="home-outline" size={24} color="gray" /><Text style={styles.navText}>{i18n.t('home')}</Text></TouchableOpacity>
         <TouchableOpacity style={styles.aiBtn}><Ionicons name="leaf" size={28} color="white" /></TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/profile')}><Ionicons name="person-outline" size={24} color="gray" /><Text style={styles.navText}>Profile</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/(tabs)/profile')}><Ionicons name="person-outline" size={24} color="gray" /><Text style={styles.navText}>{i18n.t('profile')}</Text></TouchableOpacity>
       </View>
     </View>
   );
