@@ -10,7 +10,8 @@
     },
     "preview": {
       "android": {
-        "buildType": "apk"
+        "buildType": "apk",
+        "clearCache": true
       },
       "env": {
         "EXPO_PUBLIC_GEMINI_API_KEY": "AIzaSy_neeku_key_akkada_pettu"
