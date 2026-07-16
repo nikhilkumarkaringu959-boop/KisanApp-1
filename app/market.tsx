@@ -1,11 +1,12 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useState } from 'react';
 import * as Location from 'expo-location';
+import i18n from '../i18n'; // i18n import
 
-const GEMINI_API_KEY = "AQ.Ab8RN6K5123hCBEdWoc-6e4xcdxWMXlprZTosAU32fPMGmkPOg";
+const GEMINI_API_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY; // SECURE
 
 export default function MarketScreen() {
   const router = useRouter();
@@ -26,11 +27,16 @@ export default function MarketScreen() {
   }
 
   const fetchMarketPrices = async () => {
+    if(!GEMINI_API_KEY){
+      Alert.alert("Error", "API Key missing. EAS Secret lo set cheyi");
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     const place = await getLocation();
     const today = new Date().toLocaleDateString('en-IN');
 
-    // IPUDU ANNI CROPS ADUGUTHUNNA
     const prompt = `
     You are an expert Agriculture Market Analyst for India 2026.
     Get TODAY'S ${today} exact market prices for ALL major crops in ${place} APMC Mandi, India.
@@ -41,6 +47,9 @@ export default function MarketScreen() {
       {
         "crop_name": "Cotton",
         "crop_name_tel": "పత్తి",
+        "crop_name_hi": "कपास",
+        "crop_name_ta": "பருத்தி",
+        "crop_name_kn": "ಹತ್ತಿ",
         "min_price": 7200,
         "max_price": 7800,
         "avg_price": 7500,
@@ -50,10 +59,10 @@ export default function MarketScreen() {
       }
     ]
     Rules:
-    1. Use live Google Search for ${place} mandi. Prices must be 100% accurate for today.
+    1. Use live Google Search for ${place} mandi. Prices must be for today.
     2. Include Cereals, Pulses, Vegetables, Fruits, Commercial crops. Minimum 15 crops.
-    3. Prices in INR per Quintal. For vegetables use per Kg if needed.
-    4. crop_name_tel must be in Telugu.
+    3. Prices in INR per Quintal. For vegetables use per Kg.
+    4. crop_name_tel/hi/ta/kn must be in respective language.
     5. trend = "up", "down", "stable".
     6. If ${place} data not found, use nearest district mandi.
     `;
@@ -69,12 +78,14 @@ export default function MarketScreen() {
       });
 
       const data = await response.json();
+      if(!data.candidates) throw new Error("No data");
+
       const jsonText = data.candidates[0].content.parts[0].text;
       const cleanJson = jsonText.replace(/```json/g, '').replace(/```/g, '');
       setMarketData(JSON.parse(cleanJson));
-      setLastUpdated(new Date().toLocaleString('en-IN'));
+      setLastUpdated(new Date().toLocaleString(i18n.locale));
     } catch (err) {
-      alert('Market data fetch avvaledu');
+      Alert.alert("Error", i18n.t('fetching') + " failed");
       console.log(err);
     } finally {
       setLoading(false);
@@ -97,27 +108,37 @@ export default function MarketScreen() {
     return <Ionicons name="remove" size={18} color="gray" />
   }
 
+  // Language batti crop name select cheyadam
+  const getCropName = (item: any) => {
+    if(i18n.locale === 'te') return item.crop_name_tel;
+    if(i18n.locale === 'hi') return item.crop_name_hi;
+    if(i18n.locale === 'ta') return item.crop_name_ta;
+    if(i18n.locale === 'kn') return item.crop_name_kn;
+    return item.crop_name;
+  }
+
   return (
     <View style={styles.container}>
       <LinearGradient colors={['#FF8F00', '#E65100']} style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}><Ionicons name="arrow-back" size={24} color="white" /></TouchableOpacity>
-        <Text style={styles.headerTitle}>Market Prices</Text>
+        <Text style={styles.headerTitle}>{i18n.t('marketPrices')}</Text>
         <TouchableOpacity onPress={fetchMarketPrices}><Ionicons name="refresh" size={24} color="white" /></TouchableOpacity>
       </LinearGradient>
 
       <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
         <View style={styles.infoBox}>
           <MaterialIcons name="my-location" size={18} color="#E65100" />
-          <View>
-            <Text style={styles.infoText}>{locationName} APMC Mandi</Text>
-            <Text style={styles.updatedText}>Last Updated: {lastUpdated} | {marketData.length} Crops</Text>
+          <View style={{flex: 1}}>
+            <Text style={styles.infoText}>{locationName} {i18n.t('apmcMandi')}</Text>
+            <Text style={styles.updatedText}>{i18n.t('lastUpdated')}: {lastUpdated} | {marketData.length} {i18n.t('crops')}</Text>
+            <Text style={styles.disclaimer}>* {i18n.t('indicative')}</Text>
           </View>
         </View>
 
         {loading? (
           <View style={styles.loadingBox}>
             <ActivityIndicator size="large" color="#E65100" />
-            <Text style={styles.loadingText}>All crops rates fetch chestondi...</Text>
+            <Text style={styles.loadingText}>{i18n.t('fetching')}</Text>
           </View>
         ) : (
           <View style={styles.cardContainer}>
@@ -125,15 +146,15 @@ export default function MarketScreen() {
               <View key={index} style={styles.priceCard}>
                 <View style={styles.cardHeader}>
                   <View style={{flex: 1}}>
-                    <Text style={styles.cropName}>{item.crop_name_tel}</Text>
+                    <Text style={styles.cropName}>{getCropName(item)}</Text>
                     <Text style={styles.cropNameEng}>{item.crop_name} • {item.category}</Text>
                   </View>
                   {getTrend(item.trend)}
                 </View>
                 <Text style={styles.avgPrice}>₹{item.avg_price} <Text style={styles.unit}>/{item.unit}</Text></Text>
                 <View style={styles.priceRow}>
-                  <View><Text style={styles.priceLabel}>Min</Text><Text style={styles.minPrice}>₹{item.min_price}</Text></View>
-                  <View><Text style={styles.priceLabel}>Max</Text><Text style={styles.maxPrice}>₹{item.max_price}</Text></View>
+                  <View><Text style={styles.priceLabel}>{i18n.t('min')}</Text><Text style={styles.minPrice}>₹{item.min_price}</Text></View>
+                  <View><Text style={styles.priceLabel}>{i18n.t('max')}</Text><Text style={styles.maxPrice}>₹{item.max_price}</Text></View>
                 </View>
               </View>
             ))}
@@ -151,6 +172,7 @@ const styles = StyleSheet.create({
   infoBox: { flexDirection: 'row', alignItems: 'center', gap: 10, margin: 15, backgroundColor: 'white', padding: 12, borderRadius: 12, elevation: 2 },
   infoText: { fontSize: 14, fontWeight: 'bold', color: '#E65100' },
   updatedText: { fontSize: 11, color: 'gray' },
+  disclaimer: { fontSize: 10, color: '#D32F2F', marginTop: 2 },
   loadingBox: { alignItems: 'center', marginTop: 50 },
   loadingText: { marginTop: 10, fontSize: 14, color: '#E65100' },
   cardContainer: { paddingHorizontal: 15, paddingBottom: 20 },
