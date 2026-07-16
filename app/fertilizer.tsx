@@ -3,8 +3,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import i18n from '../i18n'; // i18n import
 
-// EAS Secret nunchi key vastundi. Code lo key pettodhu
 const GEMINI_API_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
 
 export default function FertilizerScreen() {
@@ -22,7 +22,7 @@ export default function FertilizerScreen() {
 
   const callGeminiAPI = async (crop: string, acres: number, soil: string) => {
     if (!GEMINI_API_KEY) {
-      throw new Error("API Key missing. Please set EXPO_PUBLIC_GEMINI_API_KEY in EAS Secrets");
+      throw new Error(i18n.t('geminiError'));
     }
 
     const prompt = `
@@ -75,9 +75,8 @@ export default function FertilizerScreen() {
 
     const data = await response.json();
 
-    // Safety check add chesanu
     if(!data.candidates ||!data.candidates[0]) {
-      throw new Error("Gemini nunchi response rale")
+      throw new Error(i18n.t('aiErrorMsg'))
     }
 
     const jsonText = data.candidates[0].content.parts[0].text;
@@ -87,7 +86,7 @@ export default function FertilizerScreen() {
 
   const calculateFertilizer = async () => {
     if(!cropName ||!profile?.land) {
-      Alert.alert('Error', 'Please enter Crop Name and complete your Profile');
+      Alert.alert(i18n.t('error'), i18n.t('enterCropProfile'));
       return;
     }
     setLoading(true);
@@ -99,7 +98,7 @@ export default function FertilizerScreen() {
       const geminiData = await callGeminiAPI(cropName, acres, soil);
       setResult(geminiData);
     } catch (err: any) {
-      Alert.alert('AI Error', 'AI nunchi data ravatam ledu. Internet check chey.');
+      Alert.alert(i18n.t('aiError'), i18n.t('aiErrorMsg'));
       console.log(err);
     } finally {
       setLoading(false);
@@ -110,59 +109,58 @@ export default function FertilizerScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}><Ionicons name="arrow-back" size={24} color="white" /></TouchableOpacity>
-        <Text style={styles.headerTitle}>AI Fertilizer Calculator</Text>
+        <Text style={styles.headerTitle}>{i18n.t('aiFertilizerCalc')}</Text>
         <Ionicons name="sparkles" size={24} color="#FFD700" />
       </View>
 
       <ScrollView contentContainerStyle={{padding: 15, paddingBottom: 100}}>
         <View style={styles.inputCard}>
-          <Text style={styles.label}>Crop Name *</Text>
-          <TextInput style={styles.input} placeholder="e.g. Paddy, Cotton, Wheat, Tur, Soybean" value={cropName} onChangeText={setCropName} />
+          <Text style={styles.label}>{i18n.t('cropName')}</Text>
+          <TextInput style={styles.input} placeholder={i18n.t('cropPlaceholder')} value={cropName} onChangeText={setCropName} />
 
           <View style={styles.infoRow}>
-            <Text>Land: <Text style={{fontWeight: 'bold'}}>{profile?.land || '-'} Acres</Text></Text>
-            <Text>Soil: <Text style={{fontWeight: 'bold'}}>{profile?.soil || '-'}</Text></Text>
+            <Text>{i18n.t('land')}: <Text style={{fontWeight: 'bold'}}>{profile?.land || '-'} {i18n.t('acres')}</Text></Text>
+            <Text>{i18n.t('soil')}: <Text style={{fontWeight: 'bold'}}>{profile?.soil || '-'}</Text></Text>
           </View>
-          <Text style={{fontSize: 12, color: 'gray', marginBottom: 10}}>Note: Powered by Google Gemini AI</Text>
+          <Text style={{fontSize: 12, color: 'gray', marginBottom: 10}}>{i18n.t('notePowered')}</Text>
 
           <TouchableOpacity style={styles.calcBtn} onPress={calculateFertilizer}>
-            {loading? <ActivityIndicator color="white"/> : <Text style={styles.calcBtnText}>Ask KISAN AI</Text>}
+            {loading? <ActivityIndicator color="white"/> : <Text style={styles.calcBtnText}>{i18n.t('askAI')}</Text>}
           </TouchableOpacity>
         </View>
 
         {result && (
           <View style={styles.resultCard}>
-            <Text style={styles.resultTitle}>🌾 {cropName} AI Schedule</Text>
+            <Text style={styles.resultTitle}>🌾 {cropName} {i18n.t('aiSchedule')}</Text>
             <Text style={styles.summary}>{result.crop_summary}</Text>
 
-            <Text style={styles.sectionHeader}>Chemical Fertilizer - Total</Text>
-            <View style={styles.row}><Text>Urea:</Text><Text style={styles.value}>{result.chemical_calculator.Urea_kg} kg</Text></View>
-            <View style={styles.row}><Text>DAP:</Text><Text style={styles.value}>{result.chemical_calculator.DAP_kg} kg</Text></View>
-            <View style={styles.row}><Text>MOP:</Text><Text style={styles.value}>{result.chemical_calculator.MOP_kg} kg</Text></View>
+            <Text style={styles.sectionHeader}>{i18n.t('chemicalTotal')}</Text>
+            <View style={styles.row}><Text>{i18n.t('urea')}:</Text><Text style={styles.value}>{result.chemical_calculator.Urea_kg} kg</Text></View>
+            <View style={styles.row}><Text>{i18n.t('dap')}:</Text><Text style={styles.value}>{result.chemical_calculator.DAP_kg} kg</Text></View>
+            <View style={styles.row}><Text>{i18n.t('mop')}:</Text><Text style={styles.value}>{result.chemical_calculator.MOP_kg} kg</Text></View>
 
-            <Text style={styles.sectionHeader}>Organic Fertilizer - Total</Text>
-            <View style={styles.row}><Text>Vermicompost:</Text><Text style={styles.value}>{result.organic_calculator.Vermicompost_kg} kg</Text></View>
-            <View style={styles.row}><Text>FYM (పశువులఎరువు):</Text><Text style={styles.value}>{result.organic_calculator.Farmyard_Manure_tons} tons</Text></View>
-            <View style={styles.row}><Text>Neem Cake (వేపిండి):</Text><Text style={styles.value}>{result.organic_calculator.Neem_Cake_kg} kg</Text></View>
+            <Text style={styles.sectionHeader}>{i18n.t('organicTotal')}</Text>
+            <View style={styles.row}><Text>{i18n.t('vermi')}:</Text><Text style={styles.value}>{result.organic_calculator.Vermicompost_kg} kg</Text></View>
+            <View style={styles.row}><Text>{i18n.t('fym')}:</Text><Text style={styles.value}>{result.organic_calculator.Farmyard_Manure_tons} tons</Text></View>
+            <View style={styles.row}><Text>{i18n.t('neemCake')}:</Text><Text style={styles.value}>{result.organic_calculator.Neem_Cake_kg} kg</Text></View>
 
-            <Text style={styles.sectionHeader}>Stage-wise Application Guide</Text>
+            <Text style={styles.sectionHeader}>{i18n.t('stageGuide')}</Text>
             {result.situation_guide.map((stage: any, index: number) => (
               <View key={index} style={styles.stageCard}>
                 <Text style={styles.stageName}>{stage.stage_name}</Text>
-                <Text style={styles.stageText}><Text style={{fontWeight: 'bold'}}>Chemical:</Text> {stage.chemical_dosage}</Text>
-                <Text style={styles.stageText}><Text style={{fontWeight: 'bold'}}>Organic:</Text> {stage.organic_dosage}</Text>
-                <Text style={styles.tip}><Text style={{fontWeight: 'bold'}}>Tip:</Text> {stage.application_tip}</Text>
+                <Text style={styles.stageText}><Text style={{fontWeight: 'bold'}}>{i18n.t('chemical')}:</Text> {stage.chemical_dosage}</Text>
+                <Text style={styles.stageText}><Text style={{fontWeight: 'bold'}}>{i18n.t('organic')}:</Text> {stage.organic_dosage}</Text>
+                <Text style={styles.tip}><Text style={{fontWeight: 'bold'}}>{i18n.t('tip')}:</Text> {stage.application_tip}</Text>
               </View>
             ))}
           </View>
         )}
       </ScrollView>
 
-      {/* IDI OKKA LINE MARCHANU */}
       <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/(tabs)')}><Ionicons name="home-outline" size={24} color="gray" /><Text style={styles.navText}>Home</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/(tabs)')}><Ionicons name="home-outline" size={24} color="gray" /><Text style={styles.navText}>{i18n.t('home')}</Text></TouchableOpacity>
         <TouchableOpacity style={styles.aiBtn}><Ionicons name="leaf" size={28} color="white" /></TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/(tabs)/profile')}><Ionicons name="person-outline" size={24} color="gray" /><Text style={styles.navText}>Profile</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/(tabs)/profile')}><Ionicons name="person-outline" size={24} color="gray" /><Text style={styles.navText}>{i18n.t('profile')}</Text></TouchableOpacity>
       </View>
     </View>
   );
