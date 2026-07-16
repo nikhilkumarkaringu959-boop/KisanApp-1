@@ -1,8 +1,11 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, Alert } from 'react-native';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// EAS Secret nunchi key vastundi. Code lo key pettodhu
+const GEMINI_API_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
 
 export default function FertilizerScreen() {
   const router = useRouter();
@@ -18,6 +21,10 @@ export default function FertilizerScreen() {
   }, []);
 
   const callGeminiAPI = async (crop: string, acres: number, soil: string) => {
+    if (!GEMINI_API_KEY) {
+      throw new Error("API Key missing. Please set EXPO_PUBLIC_GEMINI_API_KEY in EAS Secrets");
+    }
+
     const prompt = `
     You are an expert AI Agronomist from India. Use ICAR recommendations.
     Crop: ${crop}, Land: ${acres} Acres, Soil: ${soil}
@@ -74,7 +81,7 @@ export default function FertilizerScreen() {
 
   const calculateFertilizer = async () => {
     if(!cropName ||!profile?.land) {
-      alert('Please enter Crop Name');
+      Alert.alert('Error', 'Please enter Crop Name and complete your Profile');
       return;
     }
     setLoading(true);
@@ -85,8 +92,8 @@ export default function FertilizerScreen() {
       const soil = profile.soil;
       const geminiData = await callGeminiAPI(cropName, acres, soil);
       setResult(geminiData);
-    } catch (err) {
-      alert('AI nunchi data ravatam ledu. Internet check chey.');
+    } catch (err: any) {
+      Alert.alert('AI Error', 'AI nunchi data ravatam ledu. Internet check chey.');
       console.log(err);
     } finally {
       setLoading(false);
@@ -107,8 +114,8 @@ export default function FertilizerScreen() {
           <TextInput style={styles.input} placeholder="e.g. Paddy, Cotton, Wheat, Tur, Soybean" value={cropName} onChangeText={setCropName} />
 
           <View style={styles.infoRow}>
-            <Text>Land: <Text style={{fontWeight: 'bold'}}>{profile?.land} Acres</Text></Text>
-            <Text>Soil: <Text style={{fontWeight: 'bold'}}>{profile?.soil}</Text></Text>
+            <Text>Land: <Text style={{fontWeight: 'bold'}}>{profile?.land || '-'} Acres</Text></Text>
+            <Text>Soil: <Text style={{fontWeight: 'bold'}}>{profile?.soil || '-'}</Text></Text>
           </View>
           <Text style={{fontSize: 12, color: 'gray', marginBottom: 10}}>Note: Powered by Google Gemini AI</Text>
 
