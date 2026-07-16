@@ -11,11 +11,15 @@ export default function WeatherScreen() {
   const [weather, setWeather] = useState<any>(null);
   const [error, setError] = useState('');
   const [locationName, setLocationName] = useState('Your Location');
+  const [aiTip, setAiTip] = useState(''); // NEW: AI Tip kosam
+
+  const GEMINI_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY; // NEW
 
   const fetchWeather = async () => {
     setLoading(true);
     setError('');
     setWeather(null);
+    setAiTip('');
 
     try {
       // 1. LOCATION TEESUKOVADAM + District Name
@@ -28,7 +32,6 @@ export default function WeatherScreen() {
       let location = await Location.getCurrentPositionAsync({});
       const { latitude, longitude } = location.coords;
 
-      // District name teesukovadam
       let address = await Location.reverseGeocodeAsync({latitude, longitude});
       const place = address[0].district || address[0].city || 'Your Location';
       setLocationName(place);
@@ -38,8 +41,11 @@ export default function WeatherScreen() {
 
       const response = await fetch(url);
       const data = await response.json();
-
       setWeather(data);
+
+      // 3. NEW: GEMINI KI PAMPADAM - Smart Tip adagadam
+      await getGeminiTip(data, place);
+
     } catch (err) {
       setError(i18n.t('fetchError'));
       console.log(err);
@@ -48,7 +54,35 @@ export default function WeatherScreen() {
     }
   }
 
-  // Weather code ni icon ga marchadam
+  // NEW FUNCTION: Gemini nundi tip theesukovadam
+  const getGeminiTip = async (weatherData: any, place: string) => {
+    if(!GEMINI_KEY) return;
+
+    const temp = weatherData.current.temperature_2m;
+    const humidity = weatherData.current.relative_humidity_2m;
+    const weatherText = getWeatherText(weatherData.current.weathercode);
+
+    const prompt = `You are an agriculture expert for Indian farmers. Location: ${place}, India. Current weather: ${temp}°C, ${weatherText}, Humidity: ${humidity}%.
+    Give 3 short Telugu farming tips. What crop to grow, what to spray, what to avoid. Keep it short and useful.`;
+
+    try {
+      const geminiRes = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }]
+          })
+        }
+      );
+      const geminiData = await geminiRes.json();
+      setAiTip(geminiData.candidates[0].content.parts[0].text);
+    } catch (e) {
+      console.log("Gemini Error:", e);
+    }
+  }
+
   const getWeatherIcon = (code: number) => {
     if(code === 0) return 'sunny';
     if(code < 3) return 'partly-sunny';
@@ -58,7 +92,7 @@ export default function WeatherScreen() {
   }
 
   const getWeatherText = (code: number) => {
-    if(code === 0) return i18n.locale === 'te'? 'స్వచ్ఛమైన ఆకాశం' : code === 0? 'Clear Sky' : 'Clear';
+    if(code === 0) return i18n.locale === 'te'? 'స్వచ్ఛమైన ఆకాశం' : 'Clear Sky';
     if(code < 3) return i18n.locale === 'te'? 'పాక్షికంగా మేఘాలు' : 'Partly Cloudy';
     if(code < 48) return i18n.locale === 'te'? 'మేఘాలు' : 'Cloudy';
     if(code < 67) return i18n.locale === 'te'? 'వర్షం' : 'Rain';
@@ -78,7 +112,6 @@ export default function WeatherScreen() {
 
       <ScrollView contentContainerStyle={{paddingBottom: 100}}>
         {!weather &&!loading && (
-          // FIRST SCREEN - FETCH BUTTON
           <View style={styles.fetchCard}>
             <Ionicons name="cloud" size={80} color="#2196F3" />
             <Text style={styles.fetchTitle}>{i18n.t('fetchWeather')}</Text>
@@ -94,7 +127,6 @@ export default function WeatherScreen() {
         {error && <Text style={styles.errorText}>{error}</Text>}
 
         {weather && (
-          // DATA SCREEN
           <>
             {/* CURRENT WEATHER CARD */}
             <View style={styles.currentCard}>
@@ -124,6 +156,14 @@ export default function WeatherScreen() {
                 </View>
               </View>
             </View>
+
+            {/* NEW: AI SMART TIP CARD */}
+            {aiTip && (
+              <View style={styles.tipCard}>
+                <Text style={styles.tipTitle}>🌾 {i18n.locale === 'te'? 'AI రైతు సలహా' : 'AI Farmer Tip'}</Text>
+                <Text style={styles.tipText}>{aiTip}</Text>
+              </View>
+            )}
 
             {/* 24 HOUR FORECAST */}
             <Text style={styles.sectionTitle}>{i18n.t('hourForecast')}</Text>
@@ -205,6 +245,10 @@ const styles = StyleSheet.create({
   dayName: { fontSize: 15, fontWeight: '600' },
   rainText: { color: '#2196F3', fontWeight: 'bold' },
   dayTemp: { fontSize: 15, fontWeight: 'bold' },
+  // NEW STYLES
+  tipCard: { backgroundColor: '#E8F5E9', margin: 15, padding: 15, borderRadius: 15, borderLeftWidth: 4, borderColor: '#4CAF50' },
+  tipTitle: { fontSize: 16, fontWeight: 'bold', color: '#2E7D32', marginBottom: 8 },
+  tipText: { fontSize: 14, color: '#333', lineHeight: 20 },
   bottomNav: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 70, backgroundColor: 'white', flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', borderTopLeftRadius: 20, borderTopRightRadius: 20, elevation: 10 },
   navItem: { alignItems: 'center' },
   navText: { fontSize: 12, marginTop: 4 },
