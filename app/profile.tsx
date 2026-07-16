@@ -1,7 +1,9 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-import { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
+import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import i18n from '../i18n'; // i18n import
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -18,47 +20,77 @@ export default function ProfileScreen() {
   const states = ['Telangana', 'Andhra Pradesh', 'Karnataka', 'Tamil Nadu'];
   const soilTypes = ['Black Soil', 'Red Soil', 'Alluvial Soil', 'Laterite Soil'];
 
+  const genderOptions = [
+    { key: 'Male', label: i18n.t('male') },
+    { key: 'Female', label: i18n.t('female') },
+    { key: 'Other', label: i18n.t('other') },
+  ];
+
+  // Screen open ayyaka saved profile load cheyadam
+  useEffect(() => {
+    loadProfile();
+  }, []);
+
+  const loadProfile = async () => {
+    const savedProfile = await AsyncStorage.getItem('farmerProfile');
+    if(savedProfile) {
+      const data = JSON.parse(savedProfile);
+      setName(data.name || '');
+      setAge(data.age || '');
+      setGender(data.gender || 'Male');
+      setState(data.state || 'Telangana');
+      setDistrict(data.district || '');
+      setMandal(data.mandal || '');
+      setVillage(data.village || '');
+      setLand(data.land || '');
+      setSoil(data.soil || 'Black Soil');
+    }
+  }
+
   const saveProfile = async () => {
     if(!name || !land) {
-      alert('Please enter Name and Land Size');
+      Alert.alert(i18n.t('error'), i18n.t('nameLandError'));
       return;
     }
     
     const profileData = { name, age, gender, state, district, mandal, village, land, soil };
     await AsyncStorage.setItem('farmerProfile', JSON.stringify(profileData));
-    alert('Profile Saved ✅');
-    router.replace('/home'); // Save ayyaka home ki
+    Alert.alert("Success", "Profile Saved ✅");
+    router.replace('/(tabs)'); // Save ayyaka home ki
   }
 
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Farmer Profile</Text>
-        <Text style={styles.headerSub}>Tell us about you and your farm</Text>
+        <TouchableOpacity onPress={() => router.back()} style={{position: 'absolute', top: 50, left: 15}}>
+          <Ionicons name="arrow-back" size={24} color="white" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>{i18n.t('farmerProfile')}</Text>
+        <Text style={styles.headerSub}>{i18n.t('profileSub')}</Text>
       </View>
 
       <View style={styles.formCard}>
-        <Text style={styles.label}>FULL NAME *</Text>
-        <TextInput style={styles.input} placeholder="Enter your name" value={name} onChangeText={setName} />
+        <Text style={styles.label}>{i18n.t('fullName')} *</Text>
+        <TextInput style={styles.input} placeholder={i18n.t('enterName')} value={name} onChangeText={setName} />
 
         <View style={styles.row}>
           <View style={{flex: 1}}>
-            <Text style={styles.label}>AGE</Text>
-            <TextInput style={styles.input} placeholder="Years" keyboardType="numeric" value={age} onChangeText={setAge} />
+            <Text style={styles.label}>{i18n.t('age')}</Text>
+            <TextInput style={styles.input} placeholder={i18n.t('years')} keyboardType="numeric" value={age} onChangeText={setAge} />
           </View>
           <View style={{flex: 1, marginLeft: 10}}>
-            <Text style={styles.label}>GENDER</Text>
+            <Text style={styles.label}>{i18n.t('gender')}</Text>
             <View style={styles.genderRow}>
-              {['Male', 'Female', 'Other'].map(g => (
-                <TouchableOpacity key={g} style={[styles.genderBtn, gender === g && styles.selectedBtn]} onPress={() => setGender(g)}>
-                  <Text style={[styles.genderText, gender === g && styles.selectedText]}>{g.slice(0,3)}</Text>
+              {genderOptions.map(g => (
+                <TouchableOpacity key={g.key} style={[styles.genderBtn, gender === g.key && styles.selectedBtn]} onPress={() => setGender(g.key)}>
+                  <Text style={[styles.genderText, gender === g.key && styles.selectedText]}>{g.label.slice(0,3)}</Text>
                 </TouchableOpacity>
               ))}
             </View>
           </View>
         </View>
 
-        <Text style={styles.label}>STATE</Text>
+        <Text style={styles.label}>{i18n.t('state')}</Text>
         <View style={styles.stateRow}>
           {states.map(s => (
             <TouchableOpacity key={s} style={[styles.stateBtn, state === s && styles.selectedState]} onPress={() => setState(s)}>
@@ -69,23 +101,23 @@ export default function ProfileScreen() {
 
         <View style={styles.row}>
           <View style={{flex: 1}}>
-            <Text style={styles.label}>DISTRICT</Text>
-            <TextInput style={styles.input} placeholder="District" value={district} onChangeText={setDistrict} />
+            <Text style={styles.label}>{i18n.t('district')}</Text>
+            <TextInput style={styles.input} placeholder={i18n.t('district')} value={district} onChangeText={setDistrict} />
           </View>
           <View style={{flex: 1, marginLeft: 10}}>
-            <Text style={styles.label}>MANDAL</Text>
-            <TextInput style={styles.input} placeholder="Mandal" value={mandal} onChangeText={setMandal} />
+            <Text style={styles.label}>{i18n.t('mandal')}</Text>
+            <TextInput style={styles.input} placeholder={i18n.t('mandal')} value={mandal} onChangeText={setMandal} />
           </View>
         </View>
 
-        <Text style={styles.label}>VILLAGE</Text>
-        <TextInput style={styles.input} placeholder="Village" value={village} onChangeText={setVillage} />
+        <Text style={styles.label}>{i18n.t('village')}</Text>
+        <TextInput style={styles.input} placeholder={i18n.t('village')} value={village} onChangeText={setVillage} />
 
-        <Text style={styles.label}>LAND SIZE (ACRES) *</Text>
-        <TextInput style={styles.input} placeholder="e.g. 2.40" keyboardType="decimal-pad" value={land} onChangeText={setLand} />
-        <Text style={styles.note}>Note: 40 Guntas = 1 Acre</Text>
+        <Text style={styles.label}>{i18n.t('landSize')} *</Text>
+        <TextInput style={styles.input} placeholder={i18n.t('landPlaceholder')} keyboardType="decimal-pad" value={land} onChangeText={setLand} />
+        <Text style={styles.note}>{i18n.t('note')}</Text>
 
-        <Text style={styles.label}>SOIL TYPE *</Text>
+        <Text style={styles.label}>{i18n.t('soilType')} *</Text>
         <View style={styles.soilRow}>
           {soilTypes.map(s => (
             <TouchableOpacity key={s} style={[styles.soilBtn, soil === s && styles.selectedSoil]} onPress={() => setSoil(s)}>
@@ -95,7 +127,7 @@ export default function ProfileScreen() {
         </View>
 
         <TouchableOpacity style={styles.saveBtn} onPress={saveProfile}>
-          <Text style={styles.saveBtnText}>Save & Continue</Text>
+          <Text style={styles.saveBtnText}>{i18n.t('save')}</Text>
         </TouchableOpacity>
 
       </View>
@@ -105,7 +137,7 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F5F5F5' },
-  header: { backgroundColor: '#1B5E20', padding: 30, paddingTop: 60, borderBottomRightRadius: 30 },
+  header: { backgroundColor: '#1B5E20', padding: 30, paddingTop: 60, borderBottomRightRadius: 30, alignItems: 'center' },
   headerTitle: { fontSize: 28, fontWeight: 'bold', color: 'white', fontStyle: 'italic' },
   headerSub: { fontSize: 14, color: '#A5D6A7', marginTop: 5 },
   formCard: { backgroundColor: 'white', margin: 15, padding: 15, borderRadius: 15, marginTop: -20, elevation: 3 },
