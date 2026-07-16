@@ -4,20 +4,26 @@
     "appVersionSource": "remote"
   },
   "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
     "preview": {
       "android": {
-        "buildType": "apk",
-        "image": "ubuntu-22.04-jdk-17-ndk-260849",
-        "gradleCommand": ":app:assembleRelease"
+        "buildType": "apk"
+      },
+      "ios": {
+        "buildType": "simulator"
       },
       "distribution": "internal"
     },
     "production": {
       "android": {
-        "buildType": "app-bundle",
-        "image": "ubuntu-22.04-jdk-17-ndk-260849",
-        "gradleCommand": ":app:bundleRelease"
+        "buildType": "app-bundle"
       }
     }
+  },
+  "submit": {
+    "production": {}
   }
 }
