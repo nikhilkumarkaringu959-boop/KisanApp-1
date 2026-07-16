@@ -3,13 +3,14 @@ import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import i18n from '../i18n'; // i18n import
 
 export default function WeatherScreen() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [weather, setWeather] = useState<any>(null);
   const [error, setError] = useState('');
+  const [locationName, setLocationName] = useState('Your Location');
 
   const fetchWeather = async () => {
     setLoading(true);
@@ -17,15 +18,20 @@ export default function WeatherScreen() {
     setWeather(null);
 
     try {
-      // 1. LOCATION TEESUKOVADAM - Profile nunchi leda GPS nunchi
+      // 1. LOCATION TEESUKOVADAM + District Name
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status!== 'granted') {
-        setError('Location permission denied');
+        setError(i18n.t('locationDenied'));
         setLoading(false);
         return;
       }
       let location = await Location.getCurrentPositionAsync({});
       const { latitude, longitude } = location.coords;
+
+      // District name teesukovadam
+      let address = await Location.reverseGeocodeAsync({latitude, longitude});
+      const place = address[0].district || address[0].city || 'Your Location';
+      setLocationName(place);
 
       // 2. OPEN-METEO API CALL - Free, No Key Needed
       const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation,weathercode&hourly=temperature_2m,weathercode,precipitation_probability&daily=temperature_2m_max,temperature_2m_min,weathercode,precipitation_probability_max&timezone=auto&forecast_days=10`;
@@ -35,7 +41,7 @@ export default function WeatherScreen() {
 
       setWeather(data);
     } catch (err) {
-      setError('Failed to fetch weather. Please check internet.');
+      setError(i18n.t('fetchError'));
       console.log(err);
     } finally {
       setLoading(false);
@@ -52,11 +58,11 @@ export default function WeatherScreen() {
   }
 
   const getWeatherText = (code: number) => {
-    if(code === 0) return 'Clear Sky';
-    if(code < 3) return 'Partly Cloudy';
-    if(code < 48) return 'Cloudy';
-    if(code < 67) return 'Rain';
-    return 'Storm';
+    if(code === 0) return i18n.locale === 'te'? 'స్వచ్ఛమైన ఆకాశం' : code === 0? 'Clear Sky' : 'Clear';
+    if(code < 3) return i18n.locale === 'te'? 'పాక్షికంగా మేఘాలు' : 'Partly Cloudy';
+    if(code < 48) return i18n.locale === 'te'? 'మేఘాలు' : 'Cloudy';
+    if(code < 67) return i18n.locale === 'te'? 'వర్షం' : 'Rain';
+    return i18n.locale === 'te'? 'తుఫాను' : 'Storm';
   }
 
   return (
@@ -66,7 +72,7 @@ export default function WeatherScreen() {
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color="white" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Real-time Weather</Text>
+        <Text style={styles.headerTitle}>{i18n.t('weather')}</Text>
         <View style={{width: 24}} />
       </View>
 
@@ -75,10 +81,10 @@ export default function WeatherScreen() {
           // FIRST SCREEN - FETCH BUTTON
           <View style={styles.fetchCard}>
             <Ionicons name="cloud" size={80} color="#2196F3" />
-            <Text style={styles.fetchTitle}>Get Live Weather Forecast</Text>
-            <Text style={styles.fetchDesc}>Fetch real-time data for your farm's location.</Text>
+            <Text style={styles.fetchTitle}>{i18n.t('fetchWeather')}</Text>
+            <Text style={styles.fetchDesc}>{i18n.t('fetchDesc')}</Text>
             <TouchableOpacity style={styles.fetchBtn} onPress={fetchWeather}>
-              <Text style={styles.fetchBtnText}>Fetch Weather</Text>
+              <Text style={styles.fetchBtnText}>{i18n.t('fetchBtn')}</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -94,7 +100,7 @@ export default function WeatherScreen() {
             <View style={styles.currentCard}>
               <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <Ionicons name="location" size={16} color="white" />
-                <Text style={styles.locationText}> Your Location</Text>
+                <Text style={styles.locationText}> {locationName}</Text>
               </View>
               <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
                 <Text style={styles.tempText}>{weather.current.temperature_2m}°C</Text>
@@ -103,21 +109,24 @@ export default function WeatherScreen() {
               <View style={styles.statsRow}>
                 <View style={styles.statItem}>
                   <Ionicons name="water" size={20} color="white" />
+                  <Text style={styles.statLabel}>{i18n.t('humidity')}</Text>
                   <Text style={styles.statValue}>{weather.current.relative_humidity_2m}%</Text>
                 </View>
                 <View style={styles.statItem}>
                   <Ionicons name="speedometer" size={20} color="white" />
+                  <Text style={styles.statLabel}>{i18n.t('wind')}</Text>
                   <Text style={styles.statValue}>{weather.current.wind_speed_10m} km/h</Text>
                 </View>
                 <View style={styles.statItem}>
                   <Ionicons name="cloud-rain" size={20} color="white" />
+                  <Text style={styles.statLabel}>{i18n.t('rain')}</Text>
                   <Text style={styles.statValue}>{weather.current.precipitation} mm</Text>
                 </View>
               </View>
             </View>
 
             {/* 24 HOUR FORECAST */}
-            <Text style={styles.sectionTitle}>24-Hour Forecast</Text>
+            <Text style={styles.sectionTitle}>{i18n.t('hourForecast')}</Text>
             <FlatList
               data={weather.hourly.time.slice(0, 24)}
               horizontal
@@ -126,7 +135,7 @@ export default function WeatherScreen() {
               keyExtractor={(item) => item}
               renderItem={({item, index}) => (
                 <View style={styles.hourCard}>
-                  <Text style={styles.hourText}>{index === 0? 'Now' : new Date(item).getHours() + ' PM'}</Text>
+                  <Text style={styles.hourText}>{index === 0? i18n.t('now') : new Date(item).getHours() + ' PM'}</Text>
                   <Ionicons name={getWeatherIcon(weather.hourly.weathercode[index]) as any} size={30} color="#FFC107" />
                   <Text style={styles.hourTemp}>{Math.round(weather.hourly.temperature_2m[index])}°</Text>
                 </View>
@@ -135,10 +144,10 @@ export default function WeatherScreen() {
 
             {/* 10 DAY FORECAST */}
             <View style={styles.dailyCard}>
-              <Text style={styles.sectionTitle}>10-Day Forecast</Text>
+              <Text style={styles.sectionTitle}>{i18n.t('dayForecast')}</Text>
               {weather.daily.time.map((day: string, index: number) => (
                 <View key={day} style={styles.dayRow}>
-                  <Text style={styles.dayName}>{index === 0? 'Today' : new Date(day).toLocaleDateString('en', {weekday: 'short'})}</Text>
+                  <Text style={styles.dayName}>{index === 0? i18n.t('today') : new Date(day).toLocaleDateString(i18n.locale, {weekday: 'short'})}</Text>
                   <View style={{flexDirection: 'row', alignItems: 'center'}}>
                     <Ionicons name="water" size={14} color="#2196F3" />
                     <Text style={styles.rainText}> {weather.daily.precipitation_probability_max[index]}%</Text>
@@ -153,16 +162,16 @@ export default function WeatherScreen() {
 
       {/* BOTTOM NAV */}
       <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/home')}>
-          <Ionicons name="location-outline" size={24} color="gray" />
-          <Text style={styles.navText}>Home</Text>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/(tabs)')}>
+          <Ionicons name="home-outline" size={24} color="gray" />
+          <Text style={styles.navText}>{i18n.t('home')}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.aiBtn} onPress={() => router.push('/chat')}>
+        <TouchableOpacity style={styles.aiBtn}>
           <Ionicons name="leaf" size={28} color="white" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/profile')}>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/(tabs)/profile')}>
           <Ionicons name="person-outline" size={24} color="gray" />
-          <Text style={styles.navText}>Profile</Text>
+          <Text style={styles.navText}>{i18n.t('profile')}</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -180,11 +189,12 @@ const styles = StyleSheet.create({
   fetchBtnText: { color: 'white', fontSize: 16, fontWeight: 'bold', fontStyle: 'italic' },
   errorText: { color: 'red', textAlign: 'center', marginTop: 20 },
   currentCard: { backgroundColor: '#2196F3', margin: 15, padding: 20, borderRadius: 20 },
-  locationText: { color: 'white', fontSize: 14 },
+  locationText: { color: 'white', fontSize: 14, fontWeight: 'bold' },
   tempText: { fontSize: 48, fontWeight: 'bold', color: 'white', marginTop: 10 },
   conditionText: { fontSize: 16, color: 'white', fontStyle: 'italic' },
   statsRow: { flexDirection: 'row', justifyContent: 'space-around', backgroundColor: 'rgba(0,0,0,0.2)', padding: 12, borderRadius: 12, marginTop: 15 },
   statItem: { alignItems: 'center' },
+  statLabel: { color: 'white', fontSize: 10, marginTop: 2 },
   statValue: { color: 'white', fontWeight: 'bold', marginTop: 4 },
   sectionTitle: { fontSize: 16, fontWeight: 'bold', marginLeft: 15, marginTop: 10, marginBottom: 10 },
   hourCard: { backgroundColor: 'white', padding: 12, borderRadius: 12, marginRight: 10, alignItems: 'center', width: 70, elevation: 2 },
