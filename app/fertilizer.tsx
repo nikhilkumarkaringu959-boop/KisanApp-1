@@ -4,8 +4,6 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const GEMINI_API_KEY = "AQ.Ab8RN6K5123hCBEdWoc-6e4xcdxWMXlprZTosAU32fPMGmkPOg"; // Nuvvu ichina key
-
 export default function FertilizerScreen() {
   const router = useRouter();
   const [cropName, setCropName] = useState('');
