@@ -74,6 +74,12 @@ export default function FertilizerScreen() {
     });
 
     const data = await response.json();
+
+    // Safety check add chesanu
+    if(!data.candidates ||!data.candidates[0]) {
+      throw new Error("Gemini nunchi response rale")
+    }
+
     const jsonText = data.candidates[0].content.parts[0].text;
     const cleanJson = jsonText.replace(/```json/g, '').replace(/```/g, '');
     return JSON.parse(cleanJson);
@@ -152,10 +158,11 @@ export default function FertilizerScreen() {
         )}
       </ScrollView>
 
+      {/* IDI OKKA LINE MARCHANU */}
       <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/home')}><Ionicons name="home-outline" size={24} color="gray" /><Text style={styles.navText}>Home</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/(tabs)')}><Ionicons name="home-outline" size={24} color="gray" /><Text style={styles.navText}>Home</Text></TouchableOpacity>
         <TouchableOpacity style={styles.aiBtn}><Ionicons name="leaf" size={28} color="white" /></TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/profile')}><Ionicons name="person-outline" size={24} color="gray" /><Text style={styles.navText}>Profile</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/(tabs)/profile')}><Ionicons name="person-outline" size={24} color="gray" /><Text style={styles.navText}>Profile</Text></TouchableOpacity>
       </View>
     </View>
   );
