@@ -1,9 +1,10 @@
 import 'react-native-reanimated';
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Image, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import i18n from '../i18n'; // i18n import
 
 const { width } = Dimensions.get('window');
 
@@ -11,12 +12,12 @@ export default function HomeScreen() {
   const router = useRouter();
 
   const gridItems = [
-    { id: 1, title: 'Crop\nInformation', icon: 'clipboard-list', bg: '#FFEFD5', iconBg: '#FFB347', route: '/crop' },
-    { id: 2, title: 'Weather\nForecast', icon: 'weather-sunny', bg: '#E3F2FD', iconBg: '#64B5F6', route: '/weather' }, // spelling fixed
-    { id: 3, title: 'Fertilizer\nCalculator', icon: 'cup', bg: '#E8F5E9', iconBg: '#81C784', route: '/fertilizer' },
-    { id: 4, title: 'Smart Pest\nControl', icon: 'bug', bg: '#FFEBEE', iconBg: '#E57373', route: '/pest' },
-    { id: 5, title: 'Smart Farming\nTips', icon: 'lightbulb', bg: '#FFFDE7', iconBg: '#FFD54F', route: '/smarttips' },
-    { id: 6, title: 'Govt.\nSchemes', icon: 'bank', bg: '#F3E5F5', iconBg: '#BA68C8', route: '/schemes' },
+    { id: 1, title: i18n.t('cropInfo'), icon: 'clipboard-list', bg: '#FFEFD5', iconBg: '#FFB347', route: '/crop' },
+    { id: 2, title: i18n.t('weather'), icon: 'weather-sunny', bg: '#E3F2FD', iconBg: '#64B5F6', route: '/weather' },
+    { id: 3, title: i18n.t('fertilizerCalc'), icon: 'cup', bg: '#E8F5E9', iconBg: '#81C784', route: '/fertilizer' },
+    { id: 4, title: i18n.t('pestControl'), icon: 'bug', bg: '#FFEBEE', iconBg: '#E57373', route: '/pest' },
+    { id: 5, title: i18n.t('smartTips'), icon: 'lightbulb', bg: '#FFFDE7', iconBg: '#FFD54F', route: '/smarttips' },
+    { id: 6, title: i18n.t('govtSchemes'), icon: 'bank', bg: '#F3E5F5', iconBg: '#BA68C8', route: '/schemes' },
   ];
 
   return (
@@ -32,8 +33,8 @@ export default function HomeScreen() {
       {/* HEADER */}
       <View style={styles.header}>
         <View>
-          <Text style={styles.logo}>KISAN</Text>
-          <Text style={styles.subTitle}>THE SMART FARMING ASSISTANT</Text>
+          <Text style={styles.logo}>{i18n.t('appName')}</Text>
+          <Text style={styles.subTitle}>{i18n.t('subTitle')}</Text>
         </View>
         <TouchableOpacity>
           <MaterialCommunityIcons name="format-list-bulleted" size={26} color="white" />
@@ -45,8 +46,8 @@ export default function HomeScreen() {
         {/* MARKET BANNER */}
         <TouchableOpacity style={styles.banner} onPress={() => router.push('/market')}>
           <View style={{flex: 1}}>
-            <Text style={styles.bannerTitle}>Market Prices</Text>
-            <Text style={styles.bannerDesc}>Check latest grain rates{'\n'}to go cont here.</Text>
+            <Text style={styles.bannerTitle}>{i18n.t('marketPrices')}</Text>
+            <Text style={styles.bannerDesc}>{i18n.t('marketDesc')}</Text>
           </View>
           <View style={styles.bannerRight}>
             <MaterialCommunityIcons name="cart" size={32} color="#8D6E63" />
@@ -71,21 +72,21 @@ export default function HomeScreen() {
         </View>
       </ScrollView>
 
-      {/* BOTTOM NAV - Screenshot match */}
+      {/* BOTTOM NAV */}
       <View style={styles.bottomNav}>
         <TouchableOpacity style={styles.navItem} onPress={() => router.push('/(tabs)')}>
           <Ionicons name="home" size={22} color="#2E7D32" />
-          <Text style={[styles.navText, {color: '#2E7D32'}]}>Home</Text>
+          <Text style={[styles.navText, {color: '#2E7D32'}]}>{i18n.t('home')}</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.aiBtn} onPress={() => alert('KISAN AI Coming Soon')}>
+        <TouchableOpacity style={styles.aiBtn} onPress={() => Alert.alert(i18n.t('kisanAI'), i18n.t('comingSoon'))}>
           <MaterialCommunityIcons name="sprout" size={28} color="white" />
-          <Text style={styles.aiText}>KISAN AI</Text>
+          <Text style={styles.aiText}>{i18n.t('kisanAI')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.navItem} onPress={() => router.push('/(tabs)/profile')}>
           <Ionicons name="person-outline" size={22} color="gray" />
-          <Text style={styles.navText}>Profile</Text>
+          <Text style={styles.navText}>{i18n.t('profile')}</Text>
         </TouchableOpacity>
       </View>
     </LinearGradient>
@@ -110,7 +111,6 @@ const styles = StyleSheet.create({
   iconCircle: { width: 48, height: 48, borderRadius: 24, justifyContent: 'center', alignItems: 'center', marginBottom: 8 },
   gridText: { fontSize: 11, fontWeight: '700', color: '#2E2E2E', textAlign: 'center', lineHeight: 15 },
 
-  // Screenshot lo unnatlu light green bg
   bottomNav: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 75, backgroundColor: '#E8F5E9', flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', borderTopLeftRadius: 25, borderTopRightRadius: 25, elevation: 10 },
   navItem: { alignItems: 'center', flex: 1 },
   navText: { fontSize: 11, marginTop: 3, color: 'gray', fontWeight: '500' },
