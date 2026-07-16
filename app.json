@@ -3,18 +3,34 @@
     "name": "KISAN - Smart Farming",
     "slug": "kisanapp",
     "version": "1.0.0",
-    "sdkVersion": "51.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
-    "assetBundlePatterns": ["**/*"],
+    "icon": "./assets/icon.png",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "plugins": [
+      "expo-location",
+      "expo-linear-gradient"
+    ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.karingunikhil.kisanapp"
+      "bundleIdentifier": "com.karingunikhil.kisanapp",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "We need your location to show weather and nearby mandi prices"
+      }
     },
     "android": {
       "package": "com.karingunikhil.kisanapp",
+      "versionCode": 1,
       "newArchEnabled": false,
-      "jsEngine": "hermes"
+      "jsEngine": "hermes",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "CAMERA",
+        "READ_MEDIA_IMAGES"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
