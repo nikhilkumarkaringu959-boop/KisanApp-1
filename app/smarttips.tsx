@@ -1,23 +1,23 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Image, Alert } from 'react-native';
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import i18n from '../i18n'; // i18n import
 
-const GEMINI_API_KEY = "AQ.Ab8RN6K5123hCBEdWoc-6e4xcdxWMXlprZTosAU32fPMGmkPOg";
+const GEMINI_API_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY; // SECURE
 
-// 10 CASH CROPS FULL LIST
 const cashCrops = [
-  { id: 'Cotton', name: 'Cotton', nameTel: 'పత్తి', icon: 'https://cdn-icons-png.flaticon.com/512/2972/2972185.png', desc: 'White Gold' },
-  { id: 'Chilli', name: 'Chilli', nameTel: 'మిరప', icon: 'https://cdn-icons-png.flaticon.com/512/415/415733.png', desc: 'Spicy Export' },
-  { id: 'Sugarcane', name: 'Sugarcane', nameTel: 'చెరుకు', icon: 'https://cdn-icons-png.flaticon.com/512/2936/2936886.png', desc: 'Sweet Cash' },
-  { id: 'Maize', name: 'Maize', nameTel: 'మొక్కజొన్న', icon: 'https://cdn-icons-png.flaticon.com/512/590/590834.png', desc: 'Fodder + Grain' },
-  { id: 'Turmeric', name: 'Turmeric', nameTel: 'పసుపు', icon: 'https://cdn-icons-png.flaticon.com/512/590/590830.png', desc: 'Golden Spice' },
-  { id: 'Groundnut', name: 'Groundnut', nameTel: 'వేరుశనగ', icon: 'https://cdn-icons-png.flaticon.com/512/415/415736.png', desc: 'Oil Seed' },
-  { id: 'Tobacco', name: 'Tobacco', nameTel: 'పొగాకు', icon: 'https://cdn-icons-png.flaticon.com/512/3075/3075977.png', desc: 'Commercial' },
-  { id: 'Soybean', name: 'Soybean', nameTel: 'సోయాబీన్', icon: 'https://cdn-icons-png.flaticon.com/512/415/415735.png', desc: 'Protein Crop' },
-  { id: 'Onion', name: 'Onion', nameTel: 'ఉల్లి', icon: 'https://cdn-icons-png.flaticon.com/512/2909/2909760.png', desc: 'Price King' },
-  { id: 'Tomato', name: 'Tomato', nameTel: 'టమాటా', icon: 'https://cdn-icons-png.flaticon.com/512/2909/2909767.png', desc: '90 Days Crop' }
+  { id: 'Cotton', name: 'Cotton', nameTel: 'పత్తి', nameHi: 'कपास', nameTa: 'பருத்தி', nameKn: 'ಹತ್ತಿ', icon: 'https://cdn-icons-png.flaticon.com/512/2972/2972185.png', desc: 'White Gold' },
+  { id: 'Chilli', name: 'Chilli', nameTel: 'మిరప', nameHi: 'मिर्च', nameTa: 'மிளகாய்', nameKn: 'ಮೆಣಸಿನಕಾಯಿ', icon: 'https://cdn-icons-png.flaticon.com/512/415/415733.png', desc: 'Spicy Export' },
+  { id: 'Sugarcane', name: 'Sugarcane', nameTel: 'చెరుకు', nameHi: 'गन्ना', nameTa: 'கரும்பு', nameKn: 'ಕಬ್ಬು', icon: 'https://cdn-icons-png.flaticon.com/512/2936/2936886.png', desc: 'Sweet Cash' },
+  { id: 'Maize', name: 'Maize', nameTel: 'మొక్కజొన్న', nameHi: 'मक्का', nameTa: 'மக்காச்சோளம்', nameKn: 'ಮೆಕ್ಕೆಜೋಳ', icon: 'https://cdn-icons-png.flaticon.com/512/590/590834.png', desc: 'Fodder + Grain' },
+  { id: 'Turmeric', name: 'Turmeric', nameTel: 'పసుపు', nameHi: 'हल्दी', nameTa: 'மஞ்சள்', nameKn: 'ಅರಿಶಿನ', icon: 'https://cdn-icons-png.flaticon.com/512/590/590830.png', desc: 'Golden Spice' },
+  { id: 'Groundnut', name: 'Groundnut', nameTel: 'వేరుశనగ', nameHi: 'मूंगफली', nameTa: 'வேர்கடலை', nameKn: 'ಶೇಂಗಾ', icon: 'https://cdn-icons-png.flaticon.com/512/415/415736.png', desc: 'Oil Seed' },
+  { id: 'Tobacco', name: 'Tobacco', nameTel: 'పొగాకు', nameHi: 'तम्बाकू', nameTa: 'புகையிலை', nameKn: 'ತಂಬಾಕು', icon: 'https://cdn-icons-png.flaticon.com/512/3075/3075977.png', desc: 'Commercial' },
+  { id: 'Soybean', name: 'Soybean', nameTel: 'సోయాబీన్', nameHi: 'सोयाबीन', nameTa: 'சோயாபீன்', nameKn: 'ಸೋಯಾಬೀನ್', icon: 'https://cdn-icons-png.flaticon.com/512/415/415735.png', desc: 'Protein Crop' },
+  { id: 'Onion', name: 'Onion', nameTel: 'ఉల్లి', nameHi: 'प्याज', nameTa: 'வெங்காயம்', nameKn: 'ಈರುಳ್ಳಿ', icon: 'https://cdn-icons-png.flaticon.com/512/2909/2909760.png', desc: 'Price King' },
+  { id: 'Tomato', name: 'Tomato', nameTel: 'టమాటా', nameHi: 'टमाटर', nameTa: 'தக்காளி', nameKn: 'ಟೊಮೆಟೊ', icon: 'https://cdn-icons-png.flaticon.com/512/2909/2909767.png', desc: '90 Days Crop' }
 ];
 
 export default function SmartTipsScreen() {
@@ -26,37 +26,65 @@ export default function SmartTipsScreen() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
 
+  const getCropName = (crop: any) => {
+    const lang = i18n.locale as 'en' | 'te' | 'hi' | 'ta' | 'kn';
+    if(lang === 'te') return crop.nameTel;
+    if(lang === 'hi') return crop.nameHi;
+    if(lang === 'ta') return crop.nameTa;
+    if(lang === 'kn') return crop.nameKn;
+    return crop.name;
+  }
+
   const fetchSmartTips = async () => {
+    if(!GEMINI_API_KEY){
+      Alert.alert("Error", "API Key missing");
+      return;
+    }
+
     setLoading(true);
     setResult(null);
 
     const prompt = `
     You are an Advanced AI Agricultural Advisor for High-Yield Cash Crops in India for ${selectedCrop}.
 
-    Return ONLY a valid JSON object in Telugu language, focused on maximizing farmer profits:
+    Return ONLY a valid JSON object in 5 languages: Telugu, Hindi, Tamil, Kannada, English.
     {
-      "crop_overview": "1 line profit summary for ${selectedCrop}",
+      "crop_overview": {
+        "en": "1 line profit summary",
+        "te": "Telugu summary",
+        "hi": "Hindi summary",
+        "ta": "Tamil summary",
+        "kn": "Kannada summary"
+      },
       "smart_sowing_tips": {
-        "seed_selection": "best hybrid/seed variety name for ${selectedCrop}",
-        "spacing": "exact plant to plant and row to row spacing in cm",
-        "soil_prep": "soil preparation to reduce initial cost"
+        "seed_selection": {"en": "...", "te": "...", "hi": "...", "ta": "...", "kn": "..."},
+        "spacing": {"en": "...", "te": "...", "hi": "...", "ta": "...", "kn": "..."},
+        "soil_prep": {"en": "...", "te": "...", "hi": "...", "ta": "...", "kn": "..."}
       },
       "water_and_nutrient_efficiency": {
-        "irrigation": "drip/furrow schedule for ${selectedCrop}",
-        "fertigation": "fertilizer through drip schedule",
-        "waste_reduction": "how to reduce fertilizer and water waste"
+        "irrigation": {"en": "...", "te": "...", "hi": "...", "ta": "...", "kn": "..."},
+        "fertigation": {"en": "...", "te": "...", "hi": "...", "ta": "...", "kn": "..."},
+        "waste_reduction": {"en": "...", "te": "...", "hi": "...", "ta": "...", "kn": "..."}
       },
-      "yield_boosting_techniques": [
-        "specific technique 1 for ${selectedCrop}",
-        "specific technique 2 for ${selectedCrop}",
-        "growth regulator or special practice"
-      ],
+      "yield_boosting_techniques": {
+        "en": ["tech1", "tech2"],
+        "te": ["tech1", "tech2"],
+        "hi": ["tech1", "tech2"],
+        "ta": ["tech1", "tech2"],
+        "kn": ["tech1", "tech2"]
+      },
       "market_and_harvest_strategy": {
-        "harvest_time": "best harvest time and quality signs",
-        "storage": "storage method to avoid loss",
-        "market_insight": "MSP vs Market rate and best selling time"
+        "harvest_time": {"en": "...", "te": "...", "hi": "...", "ta": "...", "kn": "..."},
+        "storage": {"en": "...", "te": "...", "hi": "...", "ta": "...", "kn": "..."},
+        "market_insight": {"en": "...", "te": "...", "hi": "...", "ta": "...", "kn": "..."}
       },
-      "profit_multiplier_tip": "1 golden tip to increase ${selectedCrop} profit by 20%"
+      "profit_multiplier_tip": {
+        "en": "golden tip",
+        "te": "golden tip",
+        "hi": "golden tip",
+        "ta": "golden tip",
+        "kn": "golden tip"
+      }
     }
     Use ICAR and latest data. Keep language simple for farmers.
     `;
@@ -75,24 +103,28 @@ export default function SmartTipsScreen() {
       const cleanJson = jsonText.replace(/```json/g, '').replace(/```/g, '');
       setResult(JSON.parse(cleanJson));
     } catch (err) {
-      alert('AI nunchi tips ravatam ledu. Internet check chey.');
+      Alert.alert("Error", i18n.t('tipsError'));
       console.log(err);
     } finally {
       setLoading(false);
     }
   };
 
+  const lang = i18n.locale as 'en' | 'te' | 'hi' | 'ta' | 'kn';
+  const getText = (obj: any) => obj?. || obj?.['en'];
+  const getList = (obj: any) => obj?. || obj?.['en'] || [];
+
   return (
     <View style={styles.container}>
       <LinearGradient colors={['#FFA000', '#FF6F00']} style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}><Ionicons name="arrow-back" size={24} color="white" /></TouchableOpacity>
-        <Text style={styles.headerTitle}>Smart Farming Tips</Text>
+        <Text style={styles.headerTitle}>{i18n.t('smartTips')}</Text>
         <Ionicons name="trending-up" size={24} color="white" />
       </LinearGradient>
 
       <ScrollView contentContainerStyle={{paddingBottom: 100}}>
 
-        <Text style={styles.sectionTitle}>వాణిజ్య పంటలు ఎంచుకోండి - 10 Crops</Text>
+        <Text style={styles.sectionTitle}>{i18n.t('selectCrop')}</Text>
         <View style={styles.grid}>
           {cashCrops.map(crop => (
             <TouchableOpacity
@@ -101,7 +133,7 @@ export default function SmartTipsScreen() {
               onPress={() => setSelectedCrop(crop.id)}
             >
               <Image source={{uri: crop.icon}} style={styles.cropIcon} />
-              <Text style={styles.cropName}>{crop.nameTel}</Text>
+              <Text style={styles.cropName}>{getCropName(crop)}</Text>
               <Text style={styles.cropDesc}>{crop.desc}</Text>
             </TouchableOpacity>
           ))}
@@ -110,65 +142,65 @@ export default function SmartTipsScreen() {
         <TouchableOpacity style={styles.smartBtn} onPress={fetchSmartTips}>
           <LinearGradient colors={['#4CAF50', '#2E7D32']} style={styles.btnGradient}>
             <Ionicons name="sparkles" size={20} color="white" />
-            <Text style={styles.smartBtnText}>{selectedCrop} Smart Tips</Text>
+            <Text style={styles.smartBtnText}>{getCropName(cashCrops.find(c=>c.id===selectedCrop)!)} {i18n.t('getSmartTips')}</Text>
           </LinearGradient>
         </TouchableOpacity>
 
         {loading && (
           <View style={styles.loadingBox}>
             <Image source={{uri: 'https://cdn-icons-png.flaticon.com/512/2936/2936886.png'}} style={styles.growingIcon} />
-            <Text style={styles.loadingText}>లాభదాయకమైన చిట్కాలను AI లెక్కిస్తోంది...</Text>
+            <Text style={styles.loadingText}>{i18n.t('calculatingTips')}</Text>
           </View>
         )}
 
         {result && (
           <View style={styles.resultContainer}>
             <View style={styles.card}>
-              <Text style={styles.cardTitle}>📊 {selectedCrop} Overview</Text>
-              <Text style={styles.cardText}>{result.crop_overview}</Text>
+              <Text style={styles.cardTitle}>📊 {getCropName(cashCrops.find(c=>c.id===selectedCrop)!)} {i18n.t('overview')}</Text>
+              <Text style={styles.cardText}>{getText(result.crop_overview)}</Text>
             </View>
 
             <View style={styles.card}>
-              <Text style={styles.cardTitle}>🌱 Smart Sowing Tips</Text>
-              <Text style={styles.boldText}>Seed Selection: </Text><Text>{result.smart_sowing_tips.seed_selection}</Text>
-              <Text style={styles.boldText}>Plant Spacing: </Text><Text>{result.smart_sowing_tips.spacing}</Text>
-              <Text style={styles.boldText}>Soil Preparation: </Text><Text>{result.smart_sowing_tips.soil_prep}</Text>
+              <Text style={styles.cardTitle}>🌱 {i18n.t('sowingTips')}</Text>
+              <Text style={styles.boldText}>{i18n.t('seedSelection')}: </Text><Text>{getText(result.smart_sowing_tips.seed_selection)}</Text>
+              <Text style={styles.boldText}>{i18n.t('plantSpacing')}: </Text><Text>{getText(result.smart_sowing_tips.spacing)}</Text>
+              <Text style={styles.boldText}>{i18n.t('soilPrep')}: </Text><Text>{getText(result.smart_sowing_tips.soil_prep)}</Text>
             </View>
 
             <View style={styles.card}>
-              <Text style={styles.cardTitle}>💧 Water & Nutrient Efficiency</Text>
-              <Text style={styles.boldText}>నీటి యాజమాన్యం: </Text><Text>{result.water_and_nutrient_efficiency.irrigation}</Text>
-              <Text style={styles.boldText}>Fertigation: </Text><Text>{result.water_and_nutrient_efficiency.fertigation}</Text>
-              <Text style={styles.boldText}>Waste Reduction: </Text><Text>{result.water_and_nutrient_efficiency.waste_reduction}</Text>
+              <Text style={styles.cardTitle}>💧 {i18n.t('waterNutrient')}</Text>
+              <Text style={styles.boldText}>{i18n.t('waterMgmt')}: </Text><Text>{getText(result.water_and_nutrient_efficiency.irrigation)}</Text>
+              <Text style={styles.boldText}>{i18n.t('fertigation')}: </Text><Text>{getText(result.water_and_nutrient_efficiency.fertigation)}</Text>
+              <Text style={styles.boldText}>{i18n.t('wasteReduction')}: </Text><Text>{getText(result.water_and_nutrient_efficiency.waste_reduction)}</Text>
             </View>
 
             <View style={styles.card}>
-              <Text style={styles.cardTitle}>🚀 Yield Boosting Techniques</Text>
-              {result.yield_boosting_techniques.map((tech: string, i: number) => (
+              <Text style={styles.cardTitle}>🚀 {i18n.t('yieldBoost')}</Text>
+              {getList(result.yield_boosting_techniques).map((tech: string, i: number) => (
                 <Text key={i} style={styles.bullet}>• {tech}</Text>
               ))}
             </View>
 
             <View style={styles.card}>
-              <Text style={styles.cardTitle}>📈 Market & Harvest Strategy</Text>
-              <Text style={styles.boldText}>Harvest Time: </Text><Text>{result.market_and_harvest_strategy.harvest_time}</Text>
-              <Text style={styles.boldText}>Storage: </Text><Text>{result.market_and_harvest_strategy.storage}</Text>
-              <Text style={styles.boldText}>Market Insight: </Text><Text>{result.market_and_harvest_strategy.market_insight}</Text>
+              <Text style={styles.cardTitle}>📈 {i18n.t('marketHarvest')}</Text>
+              <Text style={styles.boldText}>{i18n.t('harvestTime')}: </Text><Text>{getText(result.market_and_harvest_strategy.harvest_time)}</Text>
+              <Text style={styles.boldText}>{i18n.t('storage')}: </Text><Text>{getText(result.market_and_harvest_strategy.storage)}</Text>
+              <Text style={styles.boldText}>{i18n.t('marketInsight')}: </Text><Text>{getText(result.market_and_harvest_strategy.market_insight)}</Text>
             </View>
 
             <View style={styles.profitBox}>
               <Ionicons name="cash" size={24} color="#FFD700" />
-              <Text style={styles.profitTitle}>Profit Multiplier Tip</Text>
-              <Text style={styles.profitText}>{result.profit_multiplier_tip}</Text>
+              <Text style={styles.profitTitle}>{i18n.t('profitTip')}</Text>
+              <Text style={styles.profitText}>{getText(result.profit_multiplier_tip)}</Text>
             </View>
           </View>
         )}
       </ScrollView>
 
       <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/home')}><Ionicons name="home-outline" size={24} color="gray" /><Text style={styles.navText}>Home</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/(tabs)')}><Ionicons name="home-outline" size={24} color="gray" /><Text style={styles.navText}>{i18n.t('home')}</Text></TouchableOpacity>
         <TouchableOpacity style={styles.aiBtn}><Ionicons name="leaf" size={28} color="white" /></TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/profile')}><Ionicons name="person-outline" size={24} color="gray" /><Text style={styles.navText}>Profile</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/(tabs)/profile')}><Ionicons name="person-outline" size={24} color="gray" /><Text style={styles.navText}>{i18n.t('profile')}</Text></TouchableOpacity>
       </View>
     </View>
   );
