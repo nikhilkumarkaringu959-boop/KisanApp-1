@@ -3,6 +3,7 @@
     "name": "KISAN - Smart Farming",
     "slug": "kisanapp",
     "version": "1.0.1",
+    "sdkVersion": "52.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
     "icon": "./assets/icon.png",
@@ -10,7 +11,8 @@
       "**/*"
     ],
     "plugins": [
-      "expo-location"
+      "expo-location",
+      "expo-image-picker"
     ],
     "ios": {
       "supportsTablet": true,
