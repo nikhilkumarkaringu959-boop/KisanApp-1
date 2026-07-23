@@ -204,4 +204,4 @@ i18n.translations = {
 i18n.locale = Localization.locale;
 i18n.enableFallback = true;
 
-export default i18n; idhi mottam code ha
+export default i18n; // idhi mottam code ha
