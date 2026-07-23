@@ -26,14 +26,18 @@ export default function SmartTipsScreen() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
 
+  const lang = i18n.locale as 'en' | 'te' | 'hi' | 'ta' | 'kn';
+
   const getCropName = (crop: any) => {
-    const lang = i18n.locale as 'en' | 'te' | 'hi' | 'ta' | 'kn';
     if(lang === 'te') return crop.nameTel;
     if(lang === 'hi') return crop.nameHi;
     if(lang === 'ta') return crop.nameTa;
     if(lang === 'kn') return crop.nameKn;
     return crop.name;
   }
+
+  const getText = (obj: any) => obj?.[lang] || obj?.['en']; // FIX: [lang] add chesa
+  const getList = (obj: any) => obj?.[lang] || obj?.['en'] || []; // FIX: [lang] add chesa
 
   const fetchSmartTips = async () => {
     if(!GEMINI_API_KEY){
@@ -110,10 +114,6 @@ export default function SmartTipsScreen() {
     }
   };
 
-  const lang = i18n.locale as 'en' | 'te' | 'hi' | 'ta' | 'kn';
-  const getText = (obj: any) => obj?. || obj?.['en'];
-  const getList = (obj: any) => obj?. || obj?.['en'] || [];
-
   return (
     <View style={styles.container}>
       <LinearGradient colors={['#FFA000', '#FF6F00']} style={styles.header}>
@@ -124,7 +124,7 @@ export default function SmartTipsScreen() {
 
       <ScrollView contentContainerStyle={{paddingBottom: 100}}>
 
-        <Text style={styles.sectionTitle}>{i18n.t('selectCrop')}</Text>
+        <Text style={styles.sectionTitle}>{i18n.t('selectCropCash')}</Text>
         <View style={styles.grid}>
           {cashCrops.map(crop => (
             <TouchableOpacity
