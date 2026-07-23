@@ -21,15 +21,19 @@ export default function SchemesScreen() {
   const [loading, setLoading] = useState(false);
   const [schemes, setSchemes] = useState<any[]>([]);
 
+  const lang = i18n.locale as 'en' | 'te' | 'hi' | 'ta' | 'kn';
+
   const getStateName = (stateId: string) => {
     const state = states.find(s => s.id === stateId);
-    const lang = i18n.locale as 'en' | 'te' | 'hi' | 'ta' | 'kn';
     if(lang === 'te') return state?.nameTel;
     if(lang === 'hi') return state?.nameHi;
     if(lang === 'ta') return state?.nameTa;
     if(lang === 'kn') return state?.nameKn;
     return state?.name;
   }
+
+  const getText = (obj: any) => obj?.[lang] || obj?.['en'];
+  const getList = (obj: any) => obj?.[lang] || obj?.['en'] || [];
 
   const fetchGovtSchemes = async () => {
     if(!GEMINI_API_KEY){
@@ -106,6 +110,72 @@ export default function SchemesScreen() {
     Linking.openURL(url).catch(err => alert('Link open avvaledu'));
   };
 
-  const lang = i18n.locale as 'en' | 'te' | 'hi' | 'ta' | 'kn';
-  const getText = (obj: any) => obj?.[lang] || obj?.['en'];
-  const getList = (obj: any) => obj?.
+  return (
+    <LinearGradient colors={['#E8F5E9', '#FFFFFF']} style={{ flex: 1 }}>
+      <ScrollView style={styles.container}>
+        <Text style={styles.title}>{i18n.t('govtSchemes')}</Text>
+
+        <View style={styles.card}>
+          <Text style={styles.label}>{i18n.t('selectState')}</Text>
+          <View style={styles.pickerContainer}>
+            <Picker
+              selectedValue={selectedState}
+              onValueChange={(itemValue) => setSelectedState(itemValue)}
+            >
+              {states.map(state => (
+                <Picker.Item key={state.id} label={getStateName(state.id)} value={state.id} />
+              ))}
+            </Picker>
+          </View>
+
+          <TouchableOpacity style={styles.button} onPress={fetchGovtSchemes} disabled={loading}>
+            {loading? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>{i18n.t('checkSchemes')}</Text>}
+          </TouchableOpacity>
+        </View>
+
+        {loading && <Text style={styles.infoText}>{i18n.t('fetchingSchemes')}</Text>}
+
+        {schemes.map((scheme, index) => (
+          <View key={index} style={styles.schemeCard}>
+            <Text style={styles.schemeName}>{getText(scheme.scheme_name)}</Text>
+            <Text style={styles.status}>{getText(scheme.latest_status_2026)}</Text>
+
+            <Text style={styles.subTitle}>{i18n.t('eligibility')}</Text>
+            {getList(scheme.eligibility_and_benefits).map((item: string, i: number) => (
+              <Text key={i} style={styles.listItem}>• {item}</Text>
+            ))}
+
+            <Text style={styles.subTitle}>{i18n.t('documents')}</Text>
+            {scheme.required_documents.map((doc: string, i: number) => (
+              <Text key={i} style={styles.listItem}>• {doc}</Text>
+            ))}
+
+            <Text style={styles.subTitle}>{i18n.t('officialLinks')}</Text>
+            {scheme.official_links.map((link: string, i: number) => (
+              <TouchableOpacity key={i} onPress={() => openLink(link)}>
+                <Text style={styles.link}>{i18n.t('goToWebsite')}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        ))}
+      </ScrollView>
+    </LinearGradient>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, padding: 20 },
+  title: { fontSize: 26, fontWeight: 'bold', marginBottom: 20, color: '#1B5E20' },
+  card: { backgroundColor: '#fff', padding: 20, borderRadius: 15, marginBottom: 20, elevation: 3 },
+  label: { fontSize: 16, fontWeight: '600', marginBottom: 10 },
+  pickerContainer: { borderWidth: 1, borderColor: '#ccc', borderRadius: 10, marginBottom: 15 },
+  button: { backgroundColor: '#2E7D32', padding: 15, borderRadius: 10, alignItems: 'center' },
+  buttonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+  infoText: { textAlign: 'center', marginVertical: 20, fontSize: 16 },
+  schemeCard: { backgroundColor: '#fff', padding: 20, borderRadius: 15, marginBottom: 15, elevation: 2 },
+  schemeName: { fontSize: 20, fontWeight: 'bold', color: '#2E7D32', marginBottom: 10 },
+  status: { fontSize: 14, color: '#555', marginBottom: 15 },
+  subTitle: { fontSize: 16, fontWeight: 'bold', marginTop: 10, marginBottom: 5 },
+  listItem: { fontSize: 14, marginLeft: 10, marginBottom: 3 },
+  link: { color: '#1976D2', textDecorationLine: 'underline', marginBottom: 5 }
+});
